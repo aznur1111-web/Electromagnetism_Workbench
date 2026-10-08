@@ -1,0 +1,2382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fafafa">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Aznur Electromagnetism engineering calculator and visual lab. Offline, single-file, fast. Your data never leaves your device.">
+<title>AZNUR EM | Electromagnetism Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   AZNUR EM — stone + amber light theme, dark lab stage
+   ============================================================ */
+:root{
+  --bg:#fafafa; --surface:#fff; --surface-soft:#f7f5f2;
+  --border:#e7e5e4; --text:#1c1917; --muted:#57534e; --faint:#78716c;
+  --accent:#f59e0b; --accent-h:#d97706; --ok:#10b981; --err:#ef4444;
+  --shadow:0 1px 2px rgba(0,0,0,.05);
+  --r:6px; --rl:10px;
+  --mono:"IBM Plex Mono",Consolas,"Liberation Mono",monospace;
+  --sans:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --lbg:#191512; --lbg2:#211d18; --lline:#2a2620; --ltext:#f5f5f4; --lmuted:#a8a29e; --ltrace:#fbbf24;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+button,input,select{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ---------- Header ---------- */
+header{position:sticky;top:0;z-index:30;background:var(--surface);
+  border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;
+  padding:0 20px;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;min-width:212px}
+.brand-mark{width:32px;height:32px;border:1px solid var(--accent);border-radius:7px;
+  display:grid;place-items:center;color:var(--accent-h);font:700 15px var(--mono);background:#fffbeb}
+.brand-name{font-weight:700;letter-spacing:1.4px;font-size:14px}
+.brand-sub{display:block;font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:1px}
+.tabs{display:flex;gap:4px;overflow-x:auto;flex:1;height:100%;align-items:flex-end;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:transparent;padding:0 11px;height:64px;color:var(--muted);
+  font-size:12px;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--accent-h);border-color:var(--accent)}
+.header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.mini{height:32px;padding:0 12px;border:1px solid var(--border);background:var(--surface);
+  border-radius:var(--r);color:var(--muted);font-size:11px;font-weight:600;transition:all .2s}
+.mini:hover{border-color:var(--accent);background:#fffbeb;color:var(--text)}
+.mini.primary{background:var(--text);border-color:var(--text);color:#fff}
+.mini.primary:hover{background:#333;border-color:#333}
+
+/* ---------- Layout ---------- */
+#layout{display:flex;min-height:calc(100vh - 64px)}
+aside{width:250px;flex:0 0 250px;background:var(--bg);border-right:1px solid var(--border);
+  position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.side-head{padding:16px 16px 10px;color:var(--muted);font-size:10px;letter-spacing:1.4px;
+  text-transform:uppercase;font-weight:600}
+.side-group{border-top:1px solid var(--border)}
+.side-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  border:0;background:transparent;padding:10px 16px;color:var(--muted);text-align:left;
+  font-size:12px;transition:all .2s}
+.side-btn:hover{background:var(--surface);color:var(--text)}
+.side-btn.on{color:var(--accent-h);background:var(--surface);font-weight:600}
+.side-btn b{font:500 9px var(--mono);color:var(--muted);background:var(--surface-soft);
+  border:1px solid var(--border);padding:2px 6px;border-radius:4px}
+main{min-width:0;flex:1;padding:24px 24px 40px}
+.page{max-width:1480px;margin:0 auto}
+
+/* ---------- Hero / panes ---------- */
+.hero{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.hero-text{flex:1;min-width:200px}
+.hero h1{font-size:1.7rem;font-weight:700;letter-spacing:-.4px;margin:0}
+.hero p{color:var(--muted);font-size:.9rem;margin-top:4px;max-width:760px}
+.hero .tag{border:1px solid var(--border);background:var(--surface);border-radius:999px;
+  padding:6px 12px;font:600 10px var(--mono);color:var(--accent-h);white-space:nowrap}
+.pane{display:none}
+.pane.on{display:block;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* ---------- Grid / cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);
+  box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:13px}
+.card h2,.card h3{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent-h);
+  margin:0;font-weight:700}
+.card h2 small,.card h3 small{color:var(--muted);font-size:10px;text-transform:none;
+  letter-spacing:0;font-weight:400;margin-left:6px}
+.card.accent{border-top:2px solid var(--accent)}
+.desc{font-size:11px;color:var(--muted);line-height:1.5}
+@keyframes cardflash{0%{box-shadow:0 0 0 0 rgba(245,158,11,.55)}
+  70%{box-shadow:0 0 0 7px rgba(245,158,11,0)}100%{box-shadow:var(--shadow)}}
+.card.flash{animation:cardflash 1.2s ease-out}
+
+/* ---------- Forms ---------- */
+.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.field{display:grid;grid-template-columns:118px 1fr 56px;align-items:center;gap:8px}
+.field.no-unit{grid-template-columns:118px 1fr}
+.field.full{grid-column:1 / -1}
+.field label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{height:32px;width:100%;border:1px solid var(--border);background:var(--surface);
+  border-radius:var(--r);padding:0 10px;color:var(--text);font-family:var(--mono);font-size:12px;text-align:right}
+.field select{text-align:left}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(245,158,11,.12)}
+.unit{font:11px var(--mono);color:var(--muted)}
+
+/* ---------- Buttons / chips ---------- */
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{height:32px;border:1px solid var(--border);background:var(--surface);border-radius:var(--r);
+  padding:0 14px;color:var(--muted);font-size:11px;font-weight:600;transition:all .2s}
+.btn:hover{border-color:var(--accent);background:#fffbeb;color:var(--text)}
+.btn.primary{background:var(--text);color:#fff;border-color:var(--text)}
+.btn.primary:hover{background:#333;border-color:#333}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--border);background:var(--surface);border-radius:999px;
+  padding:6px 12px;font:500 11px var(--mono);color:var(--muted);transition:all .2s}
+.chip:hover{border-color:var(--accent);color:var(--accent-h);background:#fffbeb}
+
+/* ---------- Results ---------- */
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{background:var(--surface-soft);border:1px solid var(--border);border-radius:var(--r);
+  padding:10px 12px;min-width:0}
+.stat .k{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.stat .v{font:700 15px var(--mono);color:var(--text);margin:4px 0 0;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.stat .u{font-size:10px;color:var(--muted);font-weight:400}
+.stat.hot .v{color:var(--accent-h)}
+.stat.good .v{color:var(--ok)}
+.stat.bad .v{color:var(--err)}
+.stat.wide{grid-column:1 / -1}
+.stat.wide .v{font-size:11.5px;white-space:normal;overflow:visible;font-weight:600}
+.formula{font:11px/1.6 var(--mono);color:var(--muted);background:#fffbeb;
+  border-left:2px solid var(--accent);padding:10px 12px;border-radius:0 var(--r) var(--r) 0}
+.formula b{color:var(--text)}
+.note{font-size:11px;color:var(--muted);line-height:1.6}
+.notice{padding:10px;border:1px dashed #d6d3d1;background:#fafafa;border-radius:var(--r);
+  font-size:11px;color:var(--muted);line-height:1.6}
+
+/* ---------- Search / tool list ---------- */
+.search{display:flex;gap:8px}
+.search input{flex:1;height:34px;border:1px solid var(--border);border-radius:var(--r);
+  background:var(--surface);padding:0 10px;font:12px var(--sans);color:var(--text)}
+.search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(245,158,11,.12)}
+.list{display:grid;gap:6px;max-height:352px;overflow-y:auto;padding-right:2px}
+.list-btn{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;
+  padding:8px 10px;border:1px solid var(--border);background:var(--surface);border-radius:var(--r);
+  color:var(--muted);font-size:11px;text-align:left;transition:all .15s}
+.list-btn:hover{border-color:var(--accent);background:#fffbeb;color:var(--text)}
+.list-btn strong{color:var(--text);font-weight:600}
+.list-btn span{font:9px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- Tables ---------- */
+.table-scroll{overflow:auto;border:1px solid var(--border);border-radius:var(--r);
+  max-height:420px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font:11px var(--mono)}
+th,td{padding:8px 10px;border:1px solid var(--border);text-align:right;white-space:nowrap}
+th{position:sticky;top:0;background:#fafafa;color:var(--muted);font-weight:600;
+  text-transform:uppercase;font-size:9px;letter-spacing:.5px}
+td{color:var(--text)}
+td.l{text-align:left}
+td.eq{font-family:var(--mono);font-size:12px;text-align:left}
+tr:hover td{background:#fffbeb}
+
+/* ---------- Visual Lab ---------- */
+.lab-shell{background:var(--lbg);border-radius:14px;border:1px solid #2a2521;overflow:hidden;
+  box-shadow:0 10px 30px -18px rgba(28,25,23,.55)}
+.lab-top{display:flex;align-items:center;gap:14px;padding:10px 14px;flex-wrap:wrap;
+  background:var(--lbg2);border-bottom:1px solid var(--lline)}
+.lab-modes{display:flex;gap:2px;background:#141110;padding:3px;border-radius:9px;flex-wrap:wrap}
+.lab-mode{height:28px;padding:0 12px;border:0;border-radius:6px;background:transparent;
+  color:var(--lmuted);font-size:11px;font-weight:600;transition:all .15s}
+.lab-mode:hover{color:var(--ltext)}
+.lab-mode.on{background:var(--accent);color:#1c1917}
+.lab-transport{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lab-btn{width:30px;height:30px;display:grid;place-items:center;background:#141110;
+  border:1px solid var(--lline);border-radius:7px;color:var(--ltext);transition:all .15s}
+.lab-btn:hover{background:#2e2924;color:var(--ltrace);border-color:#3d362e}
+.lab-speed{display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--lmuted)}
+.lab-speed input{width:88px}
+.lab-speed span{font:600 10px var(--mono);color:var(--ltrace);min-width:38px}
+.lab-shell input[type=range]{-webkit-appearance:none;appearance:none;height:16px;
+  background:transparent;cursor:pointer}
+.lab-shell input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:#3d372f}
+.lab-shell input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
+  margin-top:-5px;border-radius:50%;background:var(--accent);border:2px solid var(--lbg);
+  box-shadow:0 0 0 1.5px var(--accent)}
+.lab-shell input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:#3d372f}
+.lab-shell input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;
+  background:var(--accent);border:2px solid var(--lbg);box-shadow:0 0 0 1.5px var(--accent)}
+.lab-hint{padding:9px 14px;background:var(--lbg2);border-bottom:1px solid var(--lline);
+  color:var(--lmuted);font-size:11px;line-height:1.5}
+.lab-stage{position:relative;height:clamp(340px,52vh,520px);background:#141110}
+.lab-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.lab-readouts{position:absolute;top:10px;right:12px;display:flex;gap:6px;flex-wrap:wrap;
+  justify-content:flex-end;max-width:62%;pointer-events:none}
+.rpill{background:rgba(20,17,16,.78);border:1px solid #3d372e;color:var(--lmuted);
+  font:600 10px var(--mono);padding:4px 9px;border-radius:6px;backdrop-filter:blur(3px)}
+.rpill b{color:var(--ltrace)}
+.lab-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+  gap:12px 22px;padding:16px;background:var(--lbg2);border-top:1px solid var(--lline)}
+.ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ctl-row label{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--lmuted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctl-row .ctl-val{font:600 11px var(--mono);color:var(--ltrace);white-space:nowrap}
+.ctl select{height:30px;background:#141110;color:var(--ltext);border:1px solid #3d372e;
+  border-radius:7px;padding:0 8px;font:600 11px var(--mono)}
+
+/* ---------- Footer / toast ---------- */
+.footer{margin-top:24px;padding:16px 0;color:var(--muted);font-size:11px;
+  border-top:1px solid var(--border);text-align:center}
+.toast{position:fixed;right:20px;bottom:20px;z-index:60;background:#ecfdf5;color:#047857;
+  border:1px solid #a7f3d0;padding:10px 14px;border-radius:var(--r);font:600 11px var(--mono);
+  opacity:0;pointer-events:none;transform:translateY(5px);transition:.2s}
+.toast.show{opacity:1;transform:none}
+
+/* ---------- Responsive ---------- */
+@media(max-width:1000px){
+  .grid>[class*=span-]{grid-column:span 12}
+}
+@media(max-width:900px){
+  header{height:auto;min-height:64px;flex-wrap:wrap;padding:10px 16px;gap:10px}
+  .brand{min-width:0}
+  .tabs{order:3;width:100%;height:40px}
+  .tab{height:40px;padding-bottom:8px}
+  #layout{display:block}
+  aside{display:none}
+  main{padding:20px 16px 40px}
+  .grid{grid-template-columns:1fr}
+  .hero{align-items:flex-start;flex-direction:column}
+  .fields{grid-template-columns:1fr}
+  .field{grid-template-columns:98px 1fr 46px}
+  .field.no-unit{grid-template-columns:98px 1fr}
+  .lab-readouts{max-width:100%}
+}
+@media print{
+  header{position:static}
+  .tabs,.header-actions,aside,.actions,.quick,.lab-top,.lab-hint,.lab-controls,.toast{display:none!important}
+  main{padding:0}
+  .pane{display:block!important}
+  .card{break-inside:avoid;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">A</div>
+    <div>
+      <div class="brand-name">AZNUR EM</div>
+      <span class="brand-sub">ELECTROMAGNETISM WORKBENCH</span>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Main sections">
+    <button class="tab on" data-pane="home">Dashboard</button>
+    <button class="tab" data-pane="electro">Electrostatics</button>
+    <button class="tab" data-pane="circuits">Circuits</button>
+    <button class="tab" data-pane="magnet">Magnetism</button>
+    <button class="tab" data-pane="ac">AC + Induction</button>
+    <button class="tab" data-pane="waves">EM Waves</button>
+    <button class="tab" data-pane="materials">Materials</button>
+    <button class="tab" data-pane="visual">Visual Lab</button>
+    <button class="tab" data-pane="reference">Reference</button>
+  </nav>
+  <div class="header-actions">
+    <button class="mini" id="resetBtn">Reset</button>
+    <button class="mini primary" id="printBtn">Print</button>
+  </div>
+</header>
+
+<div id="layout">
+<aside aria-label="Toolbook">
+  <div class="side-group">
+    <div class="side-head">Sections</div>
+    <button class="side-btn on" data-pane="home"><span>Overview</span><b>01</b></button>
+    <button class="side-btn" data-pane="electro"><span>Electrostatics</span><b>02</b></button>
+    <button class="side-btn" data-pane="circuits"><span>Circuits + DC</span><b>03</b></button>
+    <button class="side-btn" data-pane="magnet"><span>Magnetic fields</span><b>04</b></button>
+    <button class="side-btn" data-pane="ac"><span>AC + induction</span><b>05</b></button>
+    <button class="side-btn" data-pane="waves"><span>EM waves</span><b>06</b></button>
+    <button class="side-btn" data-pane="materials"><span>Materials + devices</span><b>07</b></button>
+    <button class="side-btn" data-pane="visual"><span>Visual laboratory</span><b>08</b></button>
+    <button class="side-btn" data-pane="reference"><span>Equation book</span><b>09</b></button>
+  </div>
+</aside>
+
+<main>
+<div class="page">
+
+<!-- ============================ HOME ============================ -->
+<section class="pane on" id="pane-home">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Electromagnetism Workbench</h1>
+      <p>Fast, offline calculations for electrostatics, circuits, magnetism, induction, AC, EM waves, materials and live field visualisation. Your data never leaves your device.</p>
+    </div>
+    <div class="tag">SINGLE HTML · NO LIBRARIES</div>
+  </div>
+
+  <div class="quick">
+    <button class="chip" data-open="coulomb">Coulomb law</button>
+    <button class="chip" data-open="electricField">Electric field</button>
+    <button class="chip" data-open="capacitance">Capacitor</button>
+    <button class="chip" data-open="dcCircuit">DC circuit</button>
+    <button class="chip" data-open="magneticForce">Lorentz force</button>
+    <button class="chip" data-open="rlc">RLC resonance</button>
+    <button class="chip" data-open="induction">Faraday law</button>
+    <button class="chip" data-open="emwave">EM wave</button>
+    <button class="chip" data-open="skin">Skin depth</button>
+  </div>
+
+  <div class="grid">
+    <div class="card span-7 accent">
+      <h2>Find a tool</h2>
+      <div class="search">
+        <input id="toolSearch" placeholder="Search a calculator, law, circuit, field, material or wave tool…" aria-label="Search calculators">
+        <button class="mini" id="clearSearch">Clear</button>
+      </div>
+      <div id="toolList" class="list"></div>
+    </div>
+    <div class="card span-5">
+      <h2>Constants</h2>
+      <div class="results">
+        <div class="stat"><div class="k">Coulomb kₑ</div><div class="v">8.988×10⁹<span class="u"> N·m²/C²</span></div></div>
+        <div class="stat"><div class="k">Permittivity ε₀</div><div class="v">8.854×10⁻¹²<span class="u"> F/m</span></div></div>
+        <div class="stat"><div class="k">Permeability μ₀</div><div class="v">1.257×10⁻⁶<span class="u"> H/m</span></div></div>
+        <div class="stat"><div class="k">Speed of light c</div><div class="v">2.998×10⁸<span class="u"> m/s</span></div></div>
+        <div class="stat"><div class="k">Charge e</div><div class="v">1.602×10⁻¹⁹<span class="u"> C</span></div></div>
+        <div class="stat"><div class="k">Impedance Z₀</div><div class="v">376.73<span class="u"> Ω</span></div></div>
+      </div>
+      <div class="formula"><b>Coulomb:</b> F = kq₁q₂/r² &nbsp;·&nbsp; <b>Ohm:</b> V = IR &nbsp;·&nbsp; <b>Wave:</b> v = 1/√(με)</div>
+    </div>
+    <div class="card span-6" data-calc="qco" id="tool-quickCoulomb">
+      <h2>Quick Coulomb Check</h2>
+      <div class="fields">
+        <div class="field"><label>Charge q₁</label><input id="qcoQ1" type="number" step="any" value="2"><span class="unit">μC</span></div>
+        <div class="field"><label>Charge q₂</label><input id="qcoQ2" type="number" step="any" value="-3"><span class="unit">μC</span></div>
+        <div class="field full"><label>Distance r</label><input id="qcoR" type="number" step="any" value="0.2"><span class="unit">m</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="qcoOut"></div>
+    </div>
+    <div class="card span-6" data-calc="qohm" id="tool-quickOhm">
+      <h2>Quick Ohm Check</h2>
+      <div class="fields">
+        <div class="field"><label>Voltage V</label><input id="qoV" type="number" step="any" value="12"><span class="unit">V</span></div>
+        <div class="field"><label>Current I</label><input id="qoI" type="number" step="any" value="2"><span class="unit">A</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="qohmOut"></div>
+    </div>
+    <div class="card span-12">
+      <h2>Scope</h2>
+      <div class="notice">Calculators use standard SI relationships and common engineering approximations. Material properties, losses and device parameters are user inputs. Results are intended for education, preliminary design and quick checking — not certified metrology.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ELECTROSTATICS ============================ -->
+<section class="pane" id="pane-electro">
+  <div class="hero">
+    <div class="hero-text"><h1>Electrostatics</h1><p>Charges, fields, potentials, dipoles, capacitors, energy density and Gauss-law symmetry tools.</p></div>
+    <div class="tag">CHARGES / E / V / C</div>
+  </div>
+  <div class="grid">
+    <div class="card span-6 accent" data-calc="co" id="tool-coulomb">
+      <h2>Coulomb Force <small>F = k|q₁q₂|/r²</small></h2>
+      <div class="fields">
+        <div class="field"><label>Charge q₁</label><input id="coq1" type="number" step="any" value="2"><span class="unit">μC</span></div>
+        <div class="field"><label>Charge q₂</label><input id="coq2" type="number" step="any" value="-3"><span class="unit">μC</span></div>
+        <div class="field"><label>Distance r</label><input id="cor" type="number" step="any" value="0.2"><span class="unit">m</span></div>
+        <div class="field"><label>Medium εr</label><input id="coepsr" type="number" step="any" value="1"><span class="unit">—</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="coOut"></div>
+      <div class="formula"><b>F = kₑ|q₁q₂|/(εᵣr²)</b> — opposite signs attract, like signs repel.</div>
+    </div>
+
+    <div class="card span-6" data-calc="ef" id="tool-electricField">
+      <h2>Electric Field of a Point Charge <small>E = kq/r²</small></h2>
+      <div class="fields">
+        <div class="field"><label>Charge q</label><input id="efq" type="number" step="any" value="5"><span class="unit">μC</span></div>
+        <div class="field"><label>Distance r</label><input id="efr" type="number" step="any" value="0.1"><span class="unit">m</span></div>
+        <div class="field"><label>εr</label><input id="efeps" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>Probe charge</label><input id="efqp" type="number" step="any" value="2"><span class="unit">nC</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="efOut"></div>
+    </div>
+
+    <div class="card span-6" data-calc="pv" id="tool-potential">
+      <h2>Potential + Electrostatic Energy</h2>
+      <div class="fields">
+        <div class="field"><label>Source q</label><input id="pvq" type="number" step="any" value="3"><span class="unit">μC</span></div>
+        <div class="field"><label>Distance r</label><input id="pvr" type="number" step="any" value="0.25"><span class="unit">m</span></div>
+        <div class="field"><label>Test charge</label><input id="pvqp" type="number" step="any" value="2"><span class="unit">μC</span></div>
+        <div class="field"><label>εr</label><input id="pveps" type="number" step="any" value="1"><span class="unit">—</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="pvOut"></div>
+      <div class="formula"><b>V = kq/(εᵣr)</b>, &nbsp; U = q_test·V</div>
+    </div>
+
+    <div class="card span-6" data-calc="cap" id="tool-capacitance">
+      <h2>Capacitor Designer <small>Q = CV, U = ½CV²</small></h2>
+      <div class="desc">Geometry rules which inputs are used: parallel-plate (A, d), coaxial (L, r₁, r₂), sphere (d as radius), or C₁/C₂ combinations.</div>
+      <div class="fields">
+        <div class="field no-unit full"><label>Geometry</label><select id="capGeom">
+          <option value="parallel">Parallel plate</option>
+          <option value="coax">Coaxial</option>
+          <option value="sphere">Isolated sphere</option>
+          <option value="series">Series combination</option>
+          <option value="parallelC">Parallel combination</option>
+        </select></div>
+        <div class="field"><label>εr</label><input id="capeps" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>Voltage V</label><input id="capV" type="number" step="any" value="100"><span class="unit">V</span></div>
+        <div class="field"><label>Area A</label><input id="capA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
+        <div class="field"><label>Gap d / r₁</label><input id="capd" type="number" step="any" value="0.001"><span class="unit">m</span></div>
+        <div class="field"><label>Coax length L</label><input id="capL" type="number" step="any" value="1"><span class="unit">m</span></div>
+        <div class="field"><label>Outer r₂</label><input id="capr2" type="number" step="any" value="0.005"><span class="unit">m</span></div>
+        <div class="field"><label>C₁</label><input id="capC1" type="number" step="any" value="2"><span class="unit">μF</span></div>
+        <div class="field"><label>C₂</label><input id="capC2" type="number" step="any" value="4"><span class="unit">μF</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="capOut"></div>
+      <div class="formula">Plate: <b>C=εA/d</b> · coax: <b>C=2πεL/ln(r₂/r₁)</b> · sphere: <b>C=4πεr</b></div>
+    </div>
+
+    <div class="card span-5" data-calc="gauss" id="tool-gauss">
+      <h2>Gauss Law Symmetry</h2>
+      <div class="fields">
+        <div class="field no-unit full"><label>Surface</label><select id="gaussType">
+          <option value="sphere">Sphere around point charge</option>
+          <option value="cylinder">Infinite line</option>
+          <option value="pillbox">Infinite sheet</option>
+        </select></div>
+        <div class="field"><label>Q enclosed</label><input id="gaussQ" type="number" step="any" value="5"><span class="unit">μC</span></div>
+        <div class="field"><label>Radius r</label><input id="gaussR" type="number" step="any" value="0.2"><span class="unit">m</span></div>
+        <div class="field"><label>Line charge λ</label><input id="gaussLam" type="number" step="any" value="2"><span class="unit">μC/m</span></div>
+        <div class="field full"><label>Sheet σ</label><input id="gaussSig" type="number" step="any" value="3"><span class="unit">μC/m²</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="gaussOut"></div>
+    </div>
+
+    <div class="card span-4" data-calc="dip" id="tool-dipole">
+      <h2>Electric Dipole</h2>
+      <div class="fields">
+        <div class="field"><label>Charge ±q</label><input id="dipQ" type="number" step="any" value="2"><span class="unit">μC</span></div>
+        <div class="field"><label>Separation d</label><input id="dipD" type="number" step="any" value="0.08"><span class="unit">m</span></div>
+        <div class="field"><label>Field point r</label><input id="dipR" type="number" step="any" value="0.5"><span class="unit">m</span></div>
+        <div class="field full"><label>Angle θ</label><input id="dipTheta" type="number" step="any" value="0"><span class="unit">deg</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="dipOut"></div>
+      <div class="formula">p = qd. Far field: <b>E_r = 2p cosθ/4πε₀r³</b>, E_θ = p sinθ/4πε₀r³ (r ≫ d).</div>
+    </div>
+
+    <div class="card span-3" data-calc="ed" id="tool-energydensity">
+      <h2>Energy Density</h2>
+      <div class="fields">
+        <div class="field full"><label>εr</label><input id="edEps" type="number" step="any" value="2.2"><span class="unit">—</span></div>
+        <div class="field full"><label>Field E</label><input id="edE" type="number" step="any" value="1e6"><span class="unit">V/m</span></div>
+        <div class="field full"><label>Plate area</label><input id="edA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
+        <div class="field full"><label>Gap</label><input id="edD" type="number" step="any" value="0.001"><span class="unit">m</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="edOut"></div>
+      <div class="formula"><b>uₑ = ½εE²</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CIRCUITS ============================ -->
+<section class="pane" id="pane-circuits">
+  <div class="hero">
+    <div class="hero-text"><h1>Circuits + DC</h1><p>Ohm’s law, power, resistor networks, Kirchhoff loops, RC/RL transients, battery packs and energy cost.</p></div>
+    <div class="tag">V / I / R / POWER</div>
+  </div>
+  <div class="grid">
+    <div class="card span-6 accent" data-calc="dc" id="tool-dcCircuit">
+      <h2>DC Circuit Quick Calculator <small>V = IR</small></h2>
+      <div class="fields">
+        <div class="field no-unit full"><label>Known pair</label><select id="dcKnown">
+          <option value="VI">V + I</option><option value="VR">V + R</option><option value="IR">I + R</option>
+        </select></div>
+        <div class="field"><label>Voltage V</label><input id="dcV" type="number" step="any" value="12"><span class="unit">V</span></div>
+        <div class="field"><label>Current I</label><input id="dcI" type="number" step="any" value="2"><span class="unit">A</span></div>
+        <div class="field full"><label>Resistance R</label><input id="dcR" type="number" step="any" value="6"><span class="unit">Ω</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="dcOut"></div>
+      <div class="formula"><b>P = VI = I²R = V²/R</b></div>
+    </div>
+
+    <div class="card span-6" data-calc="res" id="tool-resistors">
+      <h2>Resistor Network</h2>
+      <div class="fields">
+        <div class="field no-unit full"><label>Network</label><select id="resMode">
+          <option value="series">Series</option><option value="parallel">Parallel</option>
+          <option value="mixed">R₁ + (R₂ ∥ R₃)</option>
+        </select></div>
+        <div class="field"><label>R₁</label><input id="res1" type="number" step="any" value="10"><span class="unit">Ω</span></div>
+        <div class="field"><label>R₂</label><input id="res2" type="number" step="any" value="20"><span class="unit">Ω</span></div>
+        <div class="field"><label>R₃</label><input id="res3" type="number" step="any" value="30"><span class="unit">Ω</span></div>
+        <div class="field full"><label>Source V</label><input id="resV" type="number" step="any" value="12"><span class="unit">V</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="resOut"></div>
+    </div>
+
+    <div class="card span-6" data-calc="k" id="tool-kirchhoff">
+      <h2>Two-Loop Kirchhoff Solver</h2>
+      <div class="fields">
+        <div class="field"><label>Source E₁</label><input id="kv1" type="number" step="any" value="12"><span class="unit">V</span></div>
+        <div class="field"><label>Source E₂</label><input id="kv2" type="number" step="any" value="6"><span class="unit">V</span></div>
+        <div class="field"><label>R₁ loop 1</label><input id="kr1" type="number" step="any" value="4"><span class="unit">Ω</span></div>
+        <div class="field"><label>R₂ shared</label><input id="kr2" type="number" step="any" value="2"><span class="unit">Ω</span></div>
+        <div class="field full"><label>R₃ loop 2</label><input id="kr3" type="number" step="any" value="6"><span class="unit">Ω</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Solve KVL</button></div>
+      <div class="results" id="kOut"></div>
+      <div class="formula">I₁(R₁+R₂) − I₂R₂ = E₁; &nbsp; −I₁R₂ + I₂(R₂+R₃) = E₂</div>
+    </div>
+
+    <div class="card span-6" data-calc="rc" id="tool-rc">
+      <h2>RC Transient</h2>
+      <div class="fields">
+        <div class="field"><label>R</label><input id="rcR" type="number" step="any" value="10000"><span class="unit">Ω</span></div>
+        <div class="field"><label>C</label><input id="rcC" type="number" step="any" value="100"><span class="unit">μF</span></div>
+        <div class="field"><label>V source</label><input id="rcV" type="number" step="any" value="5"><span class="unit">V</span></div>
+        <div class="field"><label>Initial Vc</label><input id="rcV0" type="number" step="any" value="0"><span class="unit">V</span></div>
+        <div class="field full"><label>Time t</label><input id="rcT" type="number" step="any" value="1"><span class="unit">s</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="rcOut"></div>
+      <div class="formula">Charging: <b>Vc = Vf + (V₀−Vf)e⁻ᵗ/𝛕</b>, τ = RC</div>
+    </div>
+
+    <div class="card span-6" data-calc="rl" id="tool-rl">
+      <h2>RL Transient</h2>
+      <div class="fields">
+        <div class="field"><label>R</label><input id="rlR" type="number" step="any" value="5"><span class="unit">Ω</span></div>
+        <div class="field"><label>L</label><input id="rlL" type="number" step="any" value="0.5"><span class="unit">H</span></div>
+        <div class="field"><label>V source</label><input id="rlV" type="number" step="any" value="12"><span class="unit">V</span></div>
+        <div class="field"><label>Initial I</label><input id="rlI0" type="number" step="any" value="0"><span class="unit">A</span></div>
+        <div class="field full"><label>Time t</label><input id="rlT" type="number" step="any" value="0.2"><span class="unit">s</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="rlOut"></div>
+      <div class="formula">Current rise: <b>I = I∞ + (I₀−I∞)e⁻ᵗ/𝛕</b>, τ = L/R</div>
+    </div>
+
+    <div class="card span-6" data-calc="bat" id="tool-battery">
+      <h2>Battery Pack + Internal Resistance</h2>
+      <div class="fields">
+        <div class="field"><label>Cell emf</label><input id="batE" type="number" step="any" value="3.7"><span class="unit">V</span></div>
+        <div class="field"><label>Cell internal r</label><input id="batr" type="number" step="any" value="0.03"><span class="unit">Ω</span></div>
+        <div class="field"><label>Series cells Ns</label><input id="batNs" type="number" step="1" value="10"><span class="unit">cells</span></div>
+        <div class="field"><label>Parallel strings Np</label><input id="batNp" type="number" step="1" value="2"><span class="unit">strings</span></div>
+        <div class="field full"><label>Load R</label><input id="batR" type="number" step="any" value="3"><span class="unit">Ω</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Pack check</button></div>
+      <div class="results" id="batOut"></div>
+    </div>
+
+    <div class="card span-6" data-calc="ec" id="tool-energycost">
+      <h2>Electrical Energy + Cost</h2>
+      <div class="fields">
+        <div class="field"><label>Voltage</label><input id="ecV" type="number" step="any" value="230"><span class="unit">V</span></div>
+        <div class="field"><label>Current</label><input id="ecI" type="number" step="any" value="5"><span class="unit">A</span></div>
+        <div class="field"><label>Power factor</label><input id="ecPF" type="number" step="any" value="0.9"><span class="unit">—</span></div>
+        <div class="field"><label>Hours</label><input id="ecH" type="number" step="any" value="8"><span class="unit">h</span></div>
+        <div class="field"><label>Tariff</label><input id="ecTar" type="number" step="any" value="12"><span class="unit">Tk/kWh</span></div>
+        <div class="field no-unit"><label>Phase</label><select id="ecPhase">
+          <option value="1">Single phase</option><option value="3">Three phase</option>
+        </select></div>
+      </div>
+      <div class="actions"><button class="btn primary">Estimate</button></div>
+      <div class="results" id="ecOut"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MAGNETISM ============================ -->
+<section class="pane" id="pane-magnet">
+  <div class="hero">
+    <div class="hero-text"><h1>Magnetism</h1><p>Magnetic force, charged-particle motion, current-carrying conductors, solenoids and magnetic torque.</p></div>
+    <div class="tag">B / F / Φ / MOMENT</div>
+  </div>
+  <div class="grid">
+    <div class="card span-6 accent" data-calc="mf" id="tool-magneticForce">
+      <h2>Lorentz Force <small>F = qvB sinθ</small></h2>
+      <div class="fields">
+        <div class="field"><label>Charge q</label><input id="mfq" type="number" step="any" value="2"><span class="unit">μC</span></div>
+        <div class="field"><label>Velocity v</label><input id="mfv" type="number" step="any" value="2e6"><span class="unit">m/s</span></div>
+        <div class="field"><label>Field B</label><input id="mfB" type="number" step="any" value="0.4"><span class="unit">T</span></div>
+        <div class="field"><label>Angle θ</label><input id="mfTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="mfOut"></div>
+      <div class="formula">Magnetic component: <b>F = qvB sinθ</b> — force ⊥ both v and B.</div>
+    </div>
+
+    <div class="card span-6" data-calc="cp" id="tool-particle">
+      <h2>Charged Particle in Uniform B</h2>
+      <div class="fields">
+        <div class="field"><label>Particle charge</label><input id="cpq" type="number" step="any" value="1"><span class="unit">e</span></div>
+        <div class="field"><label>Mass</label><input id="cpm" type="number" step="any" value="9.109e-31"><span class="unit">kg</span></div>
+        <div class="field"><label>Velocity</label><input id="cpv" type="number" step="any" value="2e6"><span class="unit">m/s</span></div>
+        <div class="field"><label>Field B</label><input id="cpB" type="number" step="any" value="0.1"><span class="unit">T</span></div>
+        <div class="field full"><label>Pitch angle</label><input id="cpTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="cpOut"></div>
+      <div class="formula"><b>r = mv⊥/|q|B</b>, ωc = |q|B/m, pitch = v∥·T</div>
+    </div>
+
+    <div class="card span-6" data-calc="lw" id="tool-fieldWire">
+      <h2>Field of a Long Straight Wire</h2>
+      <div class="fields">
+        <div class="field"><label>Current I</label><input id="lwI" type="number" step="any" value="10"><span class="unit">A</span></div>
+        <div class="field"><label>Distance r</label><input id="lwR" type="number" step="any" value="0.1"><span class="unit">m</span></div>
+        <div class="field full"><label>μr</label><input id="lwMur" type="number" step="any" value="1"><span class="unit">—</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="lwOut"></div>
+      <div class="formula"><b>B = μI/2πr</b> — direction by the right-hand rule.</div>
+    </div>
+
+    <div class="card span-6" data-calc="sol" id="tool-solenoid">
+      <h2>Solenoid Field</h2>
+      <div class="fields">
+        <div class="field"><label>Turns N</label><input id="solN" type="number" step="any" value="1000"><span class="unit">turns</span></div>
+        <div class="field"><label>Length L</label><input id="solL" type="number" step="any" value="0.2"><span class="unit">m</span></div>
+        <div class="field"><label>Current I</label><input id="solI" type="number" step="any" value="2"><span class="unit">A</span></div>
+        <div class="field"><label>Core μr</label><input id="solMur" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field full"><label>Area A</label><input id="solA" type="number" step="any" value="0.0005"><span class="unit">m²</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="solOut"></div>
+      <div class="formula"><b>B = μ₀μrNI/L</b> &nbsp;·&nbsp; L = μ₀μrN²A/ℓ</div>
+    </div>
+
+    <div class="card span-6" data-calc="wf" id="tool-wireforce">
+      <h2>Force on a Current-Carrying Wire</h2>
+      <div class="fields">
+        <div class="field"><label>Current I</label><input id="wfI" type="number" step="any" value="5"><span class="unit">A</span></div>
+        <div class="field"><label>Length L</label><input id="wfL" type="number" step="any" value="0.5"><span class="unit">m</span></div>
+        <div class="field"><label>Field B</label><input id="wfB" type="number" step="any" value="0.2"><span class="unit">T</span></div>
+        <div class="field"><label>Angle θ</label><input id="wfTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="wfOut"></div>
+      <div class="formula"><b>F = BIL sinθ</b></div>
+    </div>
+
+    <div class="card span-6" data-calc="tor" id="tool-torque">
+      <h2>Magnetic Dipole Torque</h2>
+      <div class="fields">
+        <div class="field"><label>Turns N</label><input id="torN" type="number" step="any" value="200"><span class="unit">turns</span></div>
+        <div class="field"><label>Current I</label><input id="torI" type="number" step="any" value="1.5"><span class="unit">A</span></div>
+        <div class="field"><label>Area A</label><input id="torA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
+        <div class="field"><label>Field B</label><input id="torB" type="number" step="any" value="0.25"><span class="unit">T</span></div>
+        <div class="field full"><label>Angle θ</label><input id="torTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="torOut"></div>
+      <div class="formula">Moment <b>m = NIA</b> &nbsp;·&nbsp; torque <b>τ = mB sinθ</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ AC + INDUCTION ============================ -->
+<section class="pane" id="pane-ac">
+  <div class="hero">
+    <div class="hero-text"><h1>AC, Induction + Transformers</h1><p>Faraday’s law, flux, inductors, impedance, resonance, power factor, transformers and skin depth.</p></div>
+    <div class="tag">AC / Φ / L / Z / POWER</div>
+  </div>
+  <div class="grid">
+    <div class="card span-6 accent" data-calc="in" id="tool-induction">
+      <h2>Faraday’s Law <small>ℰ = −N dΦ/dt</small></h2>
+      <div class="fields">
+        <div class="field"><label>Turns N</label><input id="inN" type="number" step="any" value="500"><span class="unit">turns</span></div>
+        <div class="field"><label>Area A</label><input id="inA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
+        <div class="field"><label>Field B₁</label><input id="inB1" type="number" step="any" value="0.1"><span class="unit">T</span></div>
+        <div class="field"><label>Field B₂</label><input id="inB2" type="number" step="any" value="0.6"><span class="unit">T</span></div>
+        <div class="field"><label>Δt</label><input id="inDt" type="number" step="any" value="0.05"><span class="unit">s</span></div>
+        <div class="field"><label>Angle θ</label><input id="inTheta" type="number" step="any" value="0"><span class="unit">deg</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="inOut"></div>
+      <div class="formula"><b>Φ = BA cosθ</b> — average emf magnitude = N|ΔΦ/Δt|</div>
+    </div>
+
+    <div class="card span-6" data-calc="rlc" id="tool-rlc">
+      <h2>AC RLC Series</h2>
+      <div class="fields">
+        <div class="field"><label>R</label><input id="rlcR" type="number" step="any" value="10"><span class="unit">Ω</span></div>
+        <div class="field"><label>L</label><input id="rlcL" type="number" step="any" value="0.05"><span class="unit">H</span></div>
+        <div class="field"><label>C</label><input id="rlcC" type="number" step="any" value="100"><span class="unit">μF</span></div>
+        <div class="field"><label>Frequency f</label><input id="rlcF" type="number" step="any" value="50"><span class="unit">Hz</span></div>
+        <div class="field full"><label>Source Vrms</label><input id="rlcV" type="number" step="any" value="230"><span class="unit">V</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="rlcOut"></div>
+      <div class="formula"><b>X_L = ωL, X_C = 1/ωC</b>, Z = √(R²+(X_L−X_C)²), f₀ = 1/2π√LC</div>
+    </div>
+
+    <div class="card span-6" data-calc="tr" id="tool-transformer">
+      <h2>Transformer</h2>
+      <div class="fields">
+        <div class="field"><label>Primary N₁</label><input id="trN1" type="number" step="any" value="1000"><span class="unit">turns</span></div>
+        <div class="field"><label>Secondary N₂</label><input id="trN2" type="number" step="any" value="100"><span class="unit">turns</span></div>
+        <div class="field"><label>V₁</label><input id="trV1" type="number" step="any" value="230"><span class="unit">V</span></div>
+        <div class="field"><label>I₂ load</label><input id="trI2" type="number" step="any" value="5"><span class="unit">A</span></div>
+        <div class="field full"><label>Efficiency</label><input id="trEff" type="number" step="any" value="95"><span class="unit">%</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="trOut"></div>
+      <div class="formula">Ideal: <b>V₂/V₁ = N₂/N₁</b>, I₂/I₁ ≈ N₁/N₂</div>
+    </div>
+
+    <div class="card span-6" data-calc="pf" id="tool-powerfactor">
+      <h2>AC Power + Power Factor</h2>
+      <div class="fields">
+        <div class="field no-unit"><label>System</label><select id="pfPhase">
+          <option value="1">Single phase</option><option value="3">Three phase</option>
+        </select></div>
+        <div class="field"><label>Vrms</label><input id="pfV" type="number" step="any" value="230"><span class="unit">V</span></div>
+        <div class="field"><label>Irms</label><input id="pfI" type="number" step="any" value="10"><span class="unit">A</span></div>
+        <div class="field"><label>PF</label><input id="pfPF" type="number" step="any" value="0.85"><span class="unit">—</span></div>
+        <div class="field full"><label>Hours</label><input id="pfHr" type="number" step="any" value="1"><span class="unit">h</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="pfOut"></div>
+    </div>
+
+    <div class="card span-6" data-calc="lb" id="tool-inductor">
+      <h2>Inductor Basics</h2>
+      <div class="fields">
+        <div class="field"><label>Inductance L</label><input id="lbL" type="number" step="any" value="0.2"><span class="unit">H</span></div>
+        <div class="field"><label>Current I</label><input id="lbI" type="number" step="any" value="3"><span class="unit">A</span></div>
+        <div class="field"><label>dI/dt</label><input id="lbDi" type="number" step="any" value="20"><span class="unit">A/s</span></div>
+        <div class="field"><label>Turns N</label><input id="lbN" type="number" step="any" value="200"><span class="unit">turns</span></div>
+        <div class="field full"><label>Flux Φ</label><input id="lbPhi" type="number" step="any" value="0.0001"><span class="unit">Wb</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="lbOut"></div>
+      <div class="formula"><b>U = ½LI²</b> &nbsp;·&nbsp; v = L·dI/dt &nbsp;·&nbsp; L = NΦ/I</div>
+    </div>
+
+    <div class="card span-6" data-calc="skin" id="tool-skin">
+      <h2>Skin Depth</h2>
+      <div class="fields">
+        <div class="field"><label>Frequency</label><input id="skinF" type="number" step="any" value="1000000"><span class="unit">Hz</span></div>
+        <div class="field"><label>Resistivity ρ</label><input id="skinRho" type="number" step="any" value="1.72e-8"><span class="unit">Ω·m</span></div>
+        <div class="field full"><label>μr</label><input id="skinMur" type="number" step="any" value="1"><span class="unit">—</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="skinOut"></div>
+      <div class="formula"><b>δ = √(2ρ/ωμ)</b> for a good conductor</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ EM WAVES ============================ -->
+<section class="pane" id="pane-waves">
+  <div class="hero">
+    <div class="hero-text"><h1>Electromagnetic Waves</h1><p>Wave speed, wavelength, impedance, Poynting vector, photons, radiation pressure and path loss.</p></div>
+    <div class="tag">c / λ / f / S / PHOTONS</div>
+  </div>
+  <div class="grid">
+    <div class="card span-6 accent" data-calc="ew" id="tool-emwave">
+      <h2>EM Wave Calculator</h2>
+      <div class="fields">
+        <div class="field"><label>Frequency f</label><input id="ewF" type="number" step="any" value="1e9"><span class="unit">Hz</span></div>
+        <div class="field"><label>εr</label><input id="ewEr" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>μr</label><input id="ewMr" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field full"><label>E amplitude (peak)</label><input id="ewE" type="number" step="any" value="10"><span class="unit">V/m</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="ewOut"></div>
+      <div class="formula"><b>v = 1/√(με)</b>, λ = v/f, Z = √(μ/ε) — free space Z₀ ≈ 376.73 Ω</div>
+    </div>
+
+    <div class="card span-6" data-calc="po" id="tool-poynting">
+      <h2>Poynting Vector + Intensity</h2>
+      <div class="fields">
+        <div class="field"><label>E rms</label><input id="poE" type="number" step="any" value="5"><span class="unit">V/m</span></div>
+        <div class="field"><label>Medium impedance</label><input id="poZ" type="number" step="any" value="376.73"><span class="unit">Ω</span></div>
+        <div class="field"><label>Area</label><input id="poA" type="number" step="any" value="2"><span class="unit">m²</span></div>
+        <div class="field full"><label>Distance r</label><input id="poR" type="number" step="any" value="10"><span class="unit">m</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="poOut"></div>
+      <div class="formula">Plane wave: <b>I = E_rms²/Z</b> — power crossing A = IA</div>
+    </div>
+
+    <div class="card span-6" data-calc="ph" id="tool-photon">
+      <h2>Photon Energy + Momentum</h2>
+      <div class="fields">
+        <div class="field"><label>Frequency</label><input id="phF" type="number" step="any" value="5e14"><span class="unit">Hz</span></div>
+        <div class="field"><label>Wavelength</label><input id="phLam" type="number" step="any" value="600"><span class="unit">nm</span></div>
+        <div class="field full"><label>Photon rate</label><input id="phN" type="number" step="any" value="1e18"><span class="unit">photons/s</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="phOut"></div>
+      <div class="formula"><b>E = hf = hc/λ</b>, p = h/λ, power = rate × E</div>
+    </div>
+
+    <div class="card span-6" data-calc="rp" id="tool-pressure">
+      <h2>Radiation Pressure</h2>
+      <div class="fields">
+        <div class="field"><label>Intensity I</label><input id="rpI" type="number" step="any" value="1361"><span class="unit">W/m²</span></div>
+        <div class="field"><label>Area</label><input id="rpA" type="number" step="any" value="1"><span class="unit">m²</span></div>
+        <div class="field no-unit full"><label>Surface</label><select id="rpSurf">
+          <option value="abs">Perfect absorber</option>
+          <option value="ref">Perfect reflector</option>
+        </select></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="rpOut"></div>
+      <div class="formula">Absorber: <b>p = I/c</b> · reflector: p = 2I/c</div>
+    </div>
+
+    <div class="card span-12" data-calc="fspl" id="tool-fspl">
+      <h2>Free-Space Path Loss + Link Budget</h2>
+      <div class="fields">
+        <div class="field"><label>Frequency</label><input id="fsF" type="number" step="any" value="2.4"><span class="unit">GHz</span></div>
+        <div class="field"><label>Distance</label><input id="fsD" type="number" step="any" value="1"><span class="unit">km</span></div>
+        <div class="field full"><label>Transmit power</label><input id="fsPt" type="number" step="any" value="20"><span class="unit">dBm</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="fsOut"></div>
+      <div class="formula">FSPL(dB) = 20log₁₀(d_km) + 20log₁₀(f_MHz) + 32.44 &nbsp;·&nbsp; P_r = P_t − FSPL (isotropic)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MATERIALS ============================ -->
+<section class="pane" id="pane-materials">
+  <div class="hero">
+    <div class="hero-text"><h1>Materials + Devices</h1><p>Resistivity and voltage drop, Hall effect, drift velocity, band gaps and material property tables.</p></div>
+    <div class="tag">MATERIALS / DEVICES</div>
+  </div>
+  <div class="grid">
+    <div class="card span-6 accent" data-calc="reswire" id="tool-reswire">
+      <h2>Conductor Resistance + Drop</h2>
+      <div class="fields">
+        <div class="field no-unit full"><label>Material preset</label><select id="resMat">
+          <option value="1.68e-8">Copper</option>
+          <option value="1.59e-8">Silver</option>
+          <option value="2.44e-8">Gold</option>
+          <option value="2.65e-8">Aluminium</option>
+          <option value="9.7e-8">Iron</option>
+          <option value="1.1e-6">Nichrome</option>
+        </select></div>
+        <div class="field"><label>Resistivity ρ</label><input id="resRho" type="number" step="any" value="1.68e-8"><span class="unit">Ω·m</span></div>
+        <div class="field"><label>Length L</label><input id="resL" type="number" step="any" value="50"><span class="unit">m</span></div>
+        <div class="field"><label>Cross-section</label><input id="resA" type="number" step="any" value="1.5"><span class="unit">mm²</span></div>
+        <div class="field full"><label>Current</label><input id="resI" type="number" step="any" value="10"><span class="unit">A</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="rwOut"></div>
+      <div class="formula"><b>R = ρL/A</b> &nbsp;·&nbsp; drop = IR &nbsp;·&nbsp; loss = I²R</div>
+    </div>
+
+    <div class="card span-6" data-calc="hall" id="tool-hall">
+      <h2>Hall Effect</h2>
+      <div class="fields">
+        <div class="field"><label>Current I</label><input id="haI" type="number" step="any" value="0.01"><span class="unit">A</span></div>
+        <div class="field"><label>Field B</label><input id="haB" type="number" step="any" value="0.5"><span class="unit">T</span></div>
+        <div class="field"><label>Carrier density n</label><input id="haN" type="number" step="any" value="1e16"><span class="unit">cm⁻³</span></div>
+        <div class="field full"><label>Thickness t</label><input id="haT" type="number" step="any" value="100"><span class="unit">μm</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="haOut"></div>
+      <div class="formula"><b>V_H = IB/(nqt)</b> — sign identifies carrier type</div>
+    </div>
+
+    <div class="card span-6" data-calc="dr" id="tool-drift">
+      <h2>Drift Velocity</h2>
+      <div class="fields">
+        <div class="field"><label>Current I</label><input id="drI" type="number" step="any" value="1"><span class="unit">A</span></div>
+        <div class="field"><label>Carrier density n</label><input id="drN" type="number" step="any" value="8.5e22"><span class="unit">cm⁻³</span></div>
+        <div class="field full"><label>Cross-section</label><input id="drA" type="number" step="any" value="1"><span class="unit">mm²</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="drOut"></div>
+      <div class="formula"><b>v_d = I/(nqA)</b> — copper default (n ≈ 8.5×10²² cm⁻³)</div>
+    </div>
+
+    <div class="card span-6" data-calc="bg" id="tool-bandgap">
+      <h2>Band Gap ↔ Cutoff Wavelength</h2>
+      <div class="fields">
+        <div class="field full"><label>Band gap E_g</label><input id="bgEg" type="number" step="any" value="1.12"><span class="unit">eV</span></div>
+      </div>
+      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="results" id="bgOut"></div>
+      <div class="formula"><b>λ_max = 1240/E_g (nm)</b> — Si default (1.12 eV)</div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Resistivity of Conductors <small>20 °C</small></h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th style="text-align:left">Material</th><th>ρ (Ω·m)</th><th>σ (S/m)</th></tr></thead>
+        <tbody>
+          <tr><td class="l">Silver</td><td>1.59×10⁻⁸</td><td>6.30×10⁷</td></tr>
+          <tr><td class="l">Copper (annealed)</td><td>1.68×10⁻⁸</td><td>5.96×10⁷</td></tr>
+          <tr><td class="l">Gold</td><td>2.44×10⁻⁸</td><td>4.10×10⁷</td></tr>
+          <tr><td class="l">Aluminium</td><td>2.65×10⁻⁸</td><td>3.77×10⁷</td></tr>
+          <tr><td class="l">Tungsten</td><td>5.60×10⁻⁸</td><td>1.79×10⁷</td></tr>
+          <tr><td class="l">Iron</td><td>9.70×10⁻⁸</td><td>1.03×10⁷</td></tr>
+          <tr><td class="l">Stainless steel</td><td>6.90×10⁻⁷</td><td>1.45×10⁶</td></tr>
+          <tr><td class="l">Nichrome</td><td>1.10×10⁻⁶</td><td>9.09×10⁵</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="card span-6">
+      <h2>Dielectric Constants <small>typical</small></h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th style="text-align:left">Material</th><th>εr</th><th style="text-align:left">Note</th></tr></thead>
+        <tbody>
+          <tr><td class="l">Vacuum</td><td>1.0000</td><td class="l">reference</td></tr>
+          <tr><td class="l">Air</td><td>1.0006</td><td class="l">—</td></tr>
+          <tr><td class="l">Teflon</td><td>2.1</td><td class="l">low loss, RF</td></tr>
+          <tr><td class="l">Polyethylene</td><td>2.25</td><td class="l">cable insulation</td></tr>
+          <tr><td class="l">Polystyrene</td><td>2.6</td><td class="l">—</td></tr>
+          <tr><td class="l">Paper</td><td>3.7</td><td class="l">impregnated</td></tr>
+          <tr><td class="l">Fused quartz</td><td>3.8</td><td class="l">very stable</td></tr>
+          <tr><td class="l">Glass (soda-lime)</td><td>7</td><td class="l">varies 4–10</td></tr>
+          <tr><td class="l">Water (20 °C)</td><td>80</td><td class="l">high, lossy at RF</td></tr>
+          <tr><td class="l">BaTiO₃ ceramics</td><td>1000+</td><td class="l">capacitor dielectrics</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ VISUAL LAB ============================ -->
+<section class="pane" id="pane-visual">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Visual Lab</h1>
+      <p>Eight live electromagnetism experiments on one shared engine. Every slider writes straight into the simulation state and the canvas re-renders immediately — even while paused.</p>
+    </div>
+    <div class="tag">CANVAS · LIVE · ZERO DEPS</div>
+  </div>
+
+  <div class="lab-shell">
+    <div class="lab-top">
+      <div class="lab-modes" id="labModes" aria-label="Experiments"></div>
+      <div class="lab-transport">
+        <button class="lab-btn" id="labPlay" title="Play / pause (Space)" aria-label="Play or pause"></button>
+        <button class="lab-btn" id="labReset" title="Reset experiment" aria-label="Reset">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.2 6.5A4.7 4.7 0 1 1 9.3 2.8"/><path d="M11.4 1.2v2.6H8.8"/></svg>
+        </button>
+        <label class="lab-speed">speed
+          <input type="range" id="labSpeed" min="0.1" max="3" step="0.05" value="1">
+          <span id="labSpeedVal">1.00×</span>
+        </label>
+      </div>
+    </div>
+    <div class="lab-hint" id="labCaption"></div>
+    <div class="lab-stage" id="labStage">
+      <canvas id="labCanvas"></canvas>
+      <div class="lab-readouts" id="labReadouts"></div>
+    </div>
+    <div class="lab-controls" id="labControls"></div>
+  </div>
+
+  <div class="note" style="margin-top:12px">Field-line, particle and wire experiments use model units chosen for visibility — the geometry follows the real vector laws (right-hand rules, E ∝ 1/r², B ∝ 1/r). Wave, resonance, transient and skin-depth plots are computed from the actual physics. Space toggles play/pause.</div>
+</section>
+
+<!-- ============================ REFERENCE ============================ -->
+<section class="pane" id="pane-reference">
+  <div class="hero">
+    <div class="hero-text"><h1>Reference &amp; Equations</h1><p>Constants, the core electromagnetism equation book and unit shortcuts.</p></div>
+    <div class="tag">REFERENCE</div>
+  </div>
+  <div class="grid">
+    <div class="card span-6">
+      <h2>Physical Constants</h2>
+      <div class="table-scroll"><table><tbody id="constTable"></tbody></table></div>
+    </div>
+    <div class="card span-6">
+      <h2>Unit Shortcuts</h2>
+      <div class="results">
+        <div class="stat"><div class="k">1 μC</div><div class="v">10⁻⁶<span class="u"> C</span></div></div>
+        <div class="stat"><div class="k">1 μF</div><div class="v">10⁻⁶<span class="u"> F</span></div></div>
+        <div class="stat"><div class="k">1 mH</div><div class="v">10⁻³<span class="u"> H</span></div></div>
+        <div class="stat"><div class="k">1 mT</div><div class="v">10⁻³<span class="u"> T</span></div></div>
+        <div class="stat"><div class="k">1 Gauss</div><div class="v">10⁻⁴<span class="u"> T</span></div></div>
+        <div class="stat"><div class="k">0 dBm</div><div class="v">1<span class="u"> mW</span></div></div>
+        <div class="stat"><div class="k">3 dB</div><div class="v">×2<span class="u"> power</span></div></div>
+        <div class="stat"><div class="k">−3 dB</div><div class="v">×½<span class="u"> power</span></div></div>
+      </div>
+      <div class="note">Energy: 1 eV = 1.602×10⁻¹⁹ J. Magnetic flux: 1 Wb = 1 T·m² = 1 V·s.</div>
+    </div>
+    <div class="card span-12">
+      <h2>Equation Book</h2>
+      <div class="table-scroll"><table>
+        <thead><tr><th style="text-align:left">Topic</th><th style="text-align:left">Equation</th><th style="text-align:left">Notes</th></tr></thead>
+        <tbody id="eqTable"></tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+</div>
+<div class="footer">AZNUR EM · single HTML · local calculations · no external assets · engineering approximations clearly labeled</div>
+</main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ============================================================
+   Helpers
+   ============================================================ */
+const byId = id => document.getElementById(id);
+const D2R = Math.PI/180;
+const KE = 8.9875517923e9, EPS0 = 8.8541878128e-12, MU0 = 4*Math.PI*1e-7,
+      CLIGHT = 299792458, QE = 1.602176634e-19, PLANCK = 6.62607015e-34;
+const SUP = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+
+function fmt(x, sig=4){
+  if(x===null || x===undefined || !isFinite(x)) return '—';
+  if(x===0) return '0';
+  const a = Math.abs(x);
+  if(a>=1e6 || a<1e-3){
+    const [m,e] = x.toExponential(2).split('e');
+    const sign = e.startsWith('-') ? '⁻' : '';
+    const digits = e.replace(/[+-]/,'').split('').map(d=>SUP[d]).join('');
+    return m + '×10' + sign + digits;
+  }
+  return String(Number(x.toPrecision(sig)));
+}
+const pct = x => fmt(100*x) + '%';
+const ok  = (...xs) => xs.every(x => typeof x==='number' && isFinite(x));
+const st  = (k,v,u,cls) => ({k, v:String(v), u, cls});
+
+function render(out, rows){
+  byId(out).innerHTML = rows.map(r =>
+    `<div class="stat${r.cls ? ' '+r.cls : ''}"><div class="k">${r.k}</div><div class="v">${r.v}${r.u ? '<span class="u"> '+r.u+'</span>' : ''}</div></div>`
+  ).join('');
+}
+
+/* ============================================================
+   Calculators — every card recalculates live on input
+   ============================================================ */
+const CALCS = {};
+
+CALCS.qco = {i:['qcoQ1','qcoQ2','qcoR'], out:'qcoOut', fn(n){
+  if(!ok(...n) || n[2]<=0) return [];
+  const F = KE*Math.abs(n[0]*1e-6*n[1]*1e-6)/(n[2]*n[2]);
+  return [st('Force', fmt(F),'N','hot'),
+          st('Interaction', n[0]*n[1]<0 ? 'attraction' : 'repulsion')];
+}};
+
+CALCS.qohm = {i:['qoV','qoI'], out:'qohmOut', fn(n){
+  if(!ok(...n) || n[1]===0) return [];
+  return [st('Resistance', fmt(n[0]/n[1]),'Ω','hot'),
+          st('Power', fmt(Math.abs(n[0]*n[1])),'W')];
+}};
+
+/* ---------- electrostatics ---------- */
+CALCS.co = {i:['coq1','coq2','cor','coepsr'], out:'coOut', fn(n){
+  if(!ok(...n) || n[2]<=0 || n[3]<=0) return [];
+  const q1 = n[0]*1e-6, q2 = n[1]*1e-6, r = n[2], er = n[3];
+  return [st('Force magnitude', fmt(KE*Math.abs(q1*q2)/(er*r*r)),'N','hot'),
+          st('Interaction', q1*q2<0 ? 'attraction (opposite signs)' : 'repulsion (like signs)'),
+          st('Field of q₁ at q₂', fmt(KE*Math.abs(q1)/(er*r*r)),'V/m')];
+}};
+
+CALCS.ef = {i:['efq','efr','efeps','efqp'], out:'efOut', fn(n){
+  if(!ok(...n) || n[1]<=0 || n[2]<=0) return [];
+  const E = KE*Math.abs(n[0]*1e-6)/(n[2]*n[1]*n[1]);
+  return [st('Field magnitude E', fmt(E),'V/m','hot'),
+          st('Field direction', n[0]>=0 ? 'radially outward' : 'radially inward'),
+          st('Force on probe', fmt(E*n[3]*1e-9),'N')];
+}};
+
+CALCS.pv = {i:['pvq','pvr','pvqp','pveps'], out:'pvOut', fn(n){
+  if(!ok(...n) || n[1]<=0 || n[3]<=0) return [];
+  const V = KE*n[0]*1e-6/(n[3]*n[1]);
+  return [st('Potential V', fmt(V),'V','hot'),
+          st('Energy U = qV', fmt(V*n[2]*1e-6),'J'),
+          st('Sign of V', n[0]>=0 ? 'positive' : 'negative')];
+}};
+
+CALCS.cap = {i:['capeps','capV','capA','capd','capL','capr2','capC1','capC2'],
+             s:['capGeom'], out:'capOut', fn(n,r,s){
+  const [er,V,A,d,L,r2,C1,C2] = n;
+  const g = s[0];
+  let Cf, label;
+  if(g==='parallel'){
+    if(!ok(er,A,d) || er<=0 || A<=0 || d<=0) return [];
+    Cf = EPS0*er*A/d; label = 'plate';
+  } else if(g==='coax'){
+    if(!ok(er,L,d,r2) || er<=0 || L<=0 || d<=0 || r2<=d)
+      return [st('Coax','requires r₂ > r₁ > 0','','bad')];
+    Cf = 2*Math.PI*EPS0*er*L/Math.log(r2/d); label = 'coax';
+  } else if(g==='sphere'){
+    if(!ok(er,d) || er<=0 || d<=0) return [];
+    Cf = 4*Math.PI*EPS0*er*d; label = 'sphere (d = r)';
+  } else if(g==='series'){
+    if(!ok(C1,C2) || C1<=0 || C2<=0) return [];
+    Cf = (C1*C2/(C1+C2))*1e-6; label = 'series';
+  } else {
+    if(!ok(C1,C2) || C1<=0 || C2<=0) return [];
+    Cf = (C1+C2)*1e-6; label = 'parallel';
+  }
+  const rows = [st('Capacitance C', fmt(Cf),'F','hot'),
+                st('Also', fmt(Cf*1e6),'μF'),
+                st('Charge Q = CV', fmt(Cf*(isFinite(V)?V:0)),'C'),
+                st('Energy U = ½CV²', fmt(0.5*Cf*V*V),'J')];
+  if(g==='parallel' && d>0 && isFinite(V))
+    rows.push(st('Field V/d', fmt(V/d),'V/m'));
+  return rows;
+}};
+
+CALCS.gauss = {i:['gaussQ','gaussR','gaussLam','gaussSig'], s:['gaussType'], out:'gaussOut', fn(n,r,s){
+  const g = s[0];
+  if(g==='sphere'){
+    if(!ok(n[0],n[1]) || n[1]<=0) return [];
+    const Q = n[0]*1e-6;
+    return [st('E at surface', fmt(Q/(4*Math.PI*EPS0*n[1]*n[1])),'V/m','hot'),
+            st('Flux Φ = Q/ε₀', fmt(Q/EPS0),'N·m²/C')];
+  }
+  if(g==='cylinder'){
+    if(!ok(n[2],n[1]) || n[1]<=0) return [];
+    const lam = n[2]*1e-6;
+    return [st('E at radius r', fmt(lam/(2*Math.PI*EPS0*n[1])),'V/m','hot'),
+            st('Flux per metre', fmt(lam/EPS0),'N·m²/C')];
+  }
+  if(!ok(n[3]) || n[3]<=0) return [];
+  const sig = n[3]*1e-6;
+  return [st('E at surface', fmt(sig/(2*EPS0)),'V/m','hot'),
+          st('Direction', 'away from the sheet (both sides)')];
+}};
+
+CALCS.dip = {i:['dipQ','dipD','dipR','dipTheta'], out:'dipOut', fn(n){
+  if(!ok(...n) || n[2]<=0) return [];
+  const p = n[0]*1e-6*n[1], th = n[3]*D2R, r = n[2];
+  const Er = 2*p*Math.cos(th)/(4*Math.PI*EPS0*r*r*r);
+  const Et = p*Math.sin(th)/(4*Math.PI*EPS0*r*r*r);
+  return [st('Dipole moment p', fmt(p),'C·m','hot'),
+          st('|E| at (r,θ)', fmt(Math.hypot(Er,Et)),'V/m','hot'),
+          st('Radial E_r', fmt(Er),'V/m'),
+          st('Angular E_θ', fmt(Et),'V/m'),
+          st('Validity', r > 5*n[1] ? 'far field OK' : 'r should be ≫ d','', r>5*n[1]?'good':'bad')];
+}};
+
+CALCS.ed = {i:['edEps','edE','edA','edD'], out:'edOut', fn(n){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0 || n[2]<=0 || n[3]<=0) return [];
+  const u = 0.5*EPS0*n[0]*n[1]*n[1];
+  return [st('Energy density uₑ', fmt(u),'J/m³','hot'),
+          st('Stored energy U', fmt(u*n[2]*n[3]),'J'),
+          st('Displacement D', fmt(EPS0*n[0]*n[1]),'C/m²')];
+}};
+
+/* ---------- circuits ---------- */
+CALCS.dc = {i:['dcV','dcI','dcR'], s:['dcKnown'], out:'dcOut', fn(n,r,s){
+  const [V,I,R] = n, mode = s[0];
+  let v,i,rw, which;
+  if(mode==='VI'){ if(!ok(V,I) || I===0) return [st('Solver','I must be non-zero','','bad')]; v=V; i=I; rw=V/I; which='R'; }
+  else if(mode==='VR'){ if(!ok(V,R) || R===0) return [st('Solver','R must be non-zero','','bad')]; v=V; rw=R; i=V/R; which='I'; }
+  else { if(!ok(I,R)) return []; rw=R; i=I; v=I*R; which='V'; }
+  return [st('Voltage V', fmt(v),'V', which==='V'?'hot':''),
+          st('Current I', fmt(i),'A', which==='I'?'hot':''),
+          st('Resistance R', fmt(rw),'Ω', which==='R'?'hot':''),
+          st('Power P', fmt(Math.abs(v*i)),'W','hot')];
+}};
+
+CALCS.res = {i:['res1','res2','res3','resV'], s:['resMode'], out:'resOut', fn(n,r,s){
+  const [R1,R2,R3,V] = n, mode = s[0];
+  if(!ok(R1,R2,R3) || n.slice(0,3).some(x=>x<=0)) return [];
+  let Req;
+  if(mode==='series') Req = R1+R2+R3;
+  else if(mode==='parallel') Req = 1/(1/R1+1/R2+1/R3);
+  else Req = R1 + (R2*R3/(R2+R3));
+  const I = ok(V) ? V/Req : NaN;
+  const rows = [st('Equivalent R', fmt(Req),'Ω','hot')];
+  if(isFinite(I)){
+    rows.push(st('Total current', fmt(I),'A'));
+    if(mode==='mixed'){
+      const Vp = I*(R2*R3/(R2+R3));
+      rows.push(st('Current in R₂', fmt(Vp/R2),'A'));
+      rows.push(st('Current in R₃', fmt(Vp/R3),'A'));
+    }
+    if(mode==='parallel'){
+      rows.push(st('Current in R₁', fmt(V/R1),'A'));
+      rows.push(st('Current in R₂', fmt(V/R2),'A'));
+    }
+    rows.push(st('Total power', fmt(Math.abs(V*I)),'W'));
+  }
+  return rows;
+}};
+
+CALCS.k = {i:['kv1','kv2','kr1','kr2','kr3'], out:'kOut', fn(n){
+  if(!ok(...n) || n.slice(2).some(x=>x<=0)) return [];
+  const [E1,E2,R1,R2,R3] = n;
+  const a = R1+R2, b = -R2, c = -R2, d = R2+R3;
+  const det = a*d - b*c;
+  if(Math.abs(det)<1e-12) return [st('Solver','singular network','','bad')];
+  const I1 = (E1*d - b*E2)/det, I2 = (a*E2 - E1*c)/det, IR2 = I1-I2;
+  return [st('Loop current I₁', fmt(I1),'A','hot'),
+          st('Loop current I₂', fmt(I2),'A','hot'),
+          st('Current in R₂', fmt(IR2),'A'),
+          st('Power in R₂', fmt(IR2*IR2*R2),'W')];
+}};
+
+CALCS.rc = {i:['rcR','rcC','rcV','rcV0','rcT'], out:'rcOut', fn(n){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0) return [];
+  const [R,C,V,V0,t] = n;
+  const tau = R*C*1e-6;
+  const Vc = V + (V0-V)*Math.exp(-t/tau);
+  const I = (V-V0)/R*Math.exp(-t/tau);
+  const rows = [st('Time constant τ', fmt(tau),'s','hot'),
+                st('Vc(t)', fmt(Vc),'V','hot'),
+                st('Current I(t)', fmt(Math.abs(I)),'A')];
+  if(Math.abs(V-V0)>1e-12)
+    rows.push(st('Progress to final', pct(Math.max(0,Math.min(1,(Vc-V0)/(V-V0)))),''));
+  return rows;
+}};
+
+CALCS.rl = {i:['rlR','rlL','rlV','rlI0','rlT'], out:'rlOut', fn(n){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0) return [];
+  const [R,L,V,I0,t] = n;
+  const tau = L/R, Iinf = V/R;
+  const It = Iinf + (I0-Iinf)*Math.exp(-t/tau);
+  const vL = (Iinf-I0)*R*Math.exp(-t/tau);
+  const rows = [st('Time constant τ', fmt(tau),'s','hot'),
+                st('Current I(t)', fmt(It),'A','hot'),
+                st('Inductor voltage v_L', fmt(Math.abs(vL)),'V')];
+  if(Math.abs(Iinf-I0)>1e-12)
+    rows.push(st('Progress to final', pct(Math.max(0,Math.min(1,(It-I0)/(Iinf-I0)))),''));
+  return rows;
+}};
+
+CALCS.bat = {i:['batE','batr','batNs','batNp','batR'], out:'batOut', fn(n){
+  if(!ok(...n) || n.slice(0,2).some(x=>x<0) || n[2]<1 || n[3]<1 || n[4]<=0) return [];
+  const [E,ri,ns,np,R] = n;
+  ns = Math.round(ns); np = Math.round(np);
+  const Vp = ns*E, rint = ns*ri/np;
+  const I = Vp/(R+rint), Vt = I*R, P = Vt*I;
+  return [st('Pack voltage', fmt(Vp),'V','hot'),
+          st('Pack internal r', fmt(rint),'Ω'),
+          st('Load current', fmt(I),'A'),
+          st('Terminal voltage', fmt(Vt),'V','hot'),
+          st('Delivered power', fmt(P),'W'),
+          st('Efficiency', pct(P/(P+I*I*rint)),'', P/(P+I*I*rint)>0.9?'good':'')];
+}};
+
+CALCS.ec = {i:['ecV','ecI','ecPF','ecH','ecTar'], s:['ecPhase'], out:'ecOut', fn(n,r,s){
+  if(!ok(...n) || n[2]<=0 || n[2]>1 || n[3]<0 || n[4]<0) return [];
+  const [V,I,PF,h,tar] = n;
+  const three = s[0]==='3';
+  const P = three ? Math.sqrt(3)*V*I*PF : V*I*PF;
+  const S = three ? Math.sqrt(3)*V*I : V*I;
+  const kWh = P*h/1000;
+  return [st('Active power P', fmt(P),'W','hot'),
+          st('Apparent power S', fmt(S),'VA'),
+          st('Energy', fmt(kWh),'kWh'),
+          st('Cost', fmt(kWh*tar),'Tk','hot')];
+}};
+
+/* ---------- magnetism ---------- */
+CALCS.mf = {i:['mfq','mfv','mfB','mfTheta'], out:'mfOut', fn(n){
+  if(!ok(...n) || n.slice(1).some(x=>x<0)) return [];
+  const F = Math.abs(n[0]*1e-6)*n[1]*n[2]*Math.sin(n[3]*D2R);
+  return [st('Force magnitude', fmt(F),'N','hot'),
+          st('Direction', '⊥ to both v and B (right-hand rule)'),
+          st('At θ = 90°', fmt(Math.abs(n[0]*1e-6)*n[1]*n[2]),'N')];
+}};
+
+CALCS.cp = {i:['cpq','cpm','cpv','cpB','cpTheta'], out:'cpOut', fn(n){
+  if(!ok(...n) || n[1]<=0 || n[3]<=0 || n[0]===0) return [];
+  const [q,m,v,B,th] = n;
+  const qq = Math.abs(q)*QE, vp = v*Math.sin(th*D2R);
+  const r = m*vp/(qq*B), f = qq*B/(2*Math.PI*m), T = 1/f;
+  const rows = [st('Gyration radius r', fmt(r),'m','hot'),
+                st('Cyclotron frequency', fmt(f),'Hz','hot'),
+                st('Period T', fmt(T),'s')];
+  if(th<90) rows.push(st('Pitch per turn', fmt(v*Math.cos(th*D2R)*T),'m'));
+  const me = 9.109e-31, mp = 1.673e-27;
+  if(Math.abs(m-me)/me < 0.02) rows.push(st('Particle','electron'));
+  else if(Math.abs(m-mp)/mp < 0.02) rows.push(st('Particle','proton'));
+  return rows;
+}};
+
+CALCS.lw = {i:['lwI','lwR','lwMur'], out:'lwOut', fn(n){
+  if(!ok(...n) || n[1]<=0 || n[2]<1) return [];
+  const B = MU0*n[2]*Math.abs(n[0])/(2*Math.PI*n[1]);
+  return [st('Field magnitude B', fmt(B),'T','hot'),
+          st('Also', fmt(B*1e3),'mT'),
+          st('Direction', n[0]>=0 ? 'counterclockwise (viewed along +I)' : 'clockwise')];
+}};
+
+CALCS.sol = {i:['solN','solL','solI','solMur','solA'], out:'solOut', fn(n){
+  if(!ok(...n) || n[1]<=0 || n[3]<1) return [];
+  const [N,L,I,mur,A] = n;
+  const B = MU0*mur*N*Math.abs(I)/L;
+  const rows = [st('Turn density n', fmt(N/L),'turns/m'),
+                st('Core field B', fmt(B),'T','hot')];
+  if(A>0){
+    rows.push(st('Flux per turn Φ', fmt(B*A),'Wb'));
+    rows.push(st('Inductance L', fmt(MU0*mur*N*N*A/L),'H'));
+  }
+  return rows;
+}};
+
+CALCS.wf = {i:['wfI','wfL','wfB','wfTheta'], out:'wfOut', fn(n){
+  if(!ok(...n) || n.slice(1).some(x=>x<0)) return [];
+  return [st('Force magnitude', fmt(n[2]*Math.abs(n[0])*n[1]*Math.sin(n[3]*D2R)),'N','hot'),
+          st('Direction', '⊥ to wire and B (right-hand rule)')];
+}};
+
+CALCS.tor = {i:['torN','torI','torA','torB','torTheta'], out:'torOut', fn(n){
+  if(!ok(...n) || n.slice(2).some(x=>x<0)) return [];
+  const m = n[0]*Math.abs(n[1])*n[2];
+  return [st('Magnetic moment m', fmt(m),'A·m²','hot'),
+          st('Torque τ', fmt(m*n[3]*Math.sin(n[4]*D2R)),'N·m','hot'),
+          st('Max torque (θ=90°)', fmt(m*n[3]),'N·m')];
+}};
+
+/* ---------- AC + induction ---------- */
+CALCS.in = {i:['inN','inA','inB1','inB2','inDt','inTheta'], out:'inOut', fn(n){
+  if(!ok(...n) || n[4]<=0 || n.slice(1,4).some(x=>x<0)) return [];
+  const [N,A,B1,B2,dt,th] = n;
+  const c = Math.cos(th*D2R);
+  const dPhi = Math.abs((B2-B1)*A*c);
+  const emf = N*dPhi/dt;
+  return [st('ΔΦ per turn', fmt(dPhi),'Wb','hot'),
+          st('Induced emf (avg)', fmt(emf),'V','hot'),
+          st('Flux linkage NΔΦ', fmt(N*dPhi),'Wb'),
+          st('Lenz response', B2>B1 ? 'opposes the increase' : 'opposes the decrease')];
+}};
+
+CALCS.rlc = {i:['rlcR','rlcL','rlcC','rlcF','rlcV'], out:'rlcOut', fn(n){
+  if(!ok(...n) || n.slice(0,4).some(x=>x<=0) || n[4]<0) return [];
+  const [R,L,C,F,V] = n;
+  const w = 2*Math.PI*F;
+  const XL = w*L, XC = 1/(w*C*1e-6), X = XL-XC;
+  const Z = Math.hypot(R,X), I = V/Z;
+  const f0 = 1/(2*Math.PI*Math.sqrt(L*C*1e-6));
+  const Q = Math.sqrt(L/(C*1e-6))/R;
+  const ph = Math.atan2(X,R)/D2R;
+  return [st('Impedance Z', fmt(Z),'Ω','hot'),
+          st('Current I(rms)', fmt(I),'A','hot'),
+          st('Phase φ (I vs V)', fmt(-ph),'deg'),
+          st('X_L', fmt(XL),'Ω'),
+          st('X_C', fmt(XC),'Ω'),
+          st('Resonance f₀', fmt(f0),'Hz'),
+          st('Quality factor Q', fmt(Q),''),
+          st('Regime', Math.abs(X)<0.01*R ? 'at resonance' : X>0 ? 'inductive (I lags V)' : 'capacitive (I leads V)')];
+}};
+
+CALCS.tr = {i:['trN1','trN2','trV1','trI2','trEff'], out:'trOut', fn(n){
+  if(!ok(...n) || n.slice(0,4).some(x=>x<=0) || n[4]<=0 || n[4]>100) return [];
+  const [N1,N2,V1,I2,eff] = n;
+  const a = N1/N2, V2 = V1/a, Po = V2*I2, Pin = Po/(eff/100);
+  return [st('Turns ratio a = N₁/N₂', fmt(a),'','hot'),
+          st('Secondary voltage V₂', fmt(V2),'V','hot'),
+          st('Output power', fmt(Po),'W'),
+          st('Input power', fmt(Pin),'W'),
+          st('Primary current I₁', fmt(Pin/V1),'A')];
+}};
+
+CALCS.pf = {i:['pfV','pfI','pfPF','pfHr'], s:['pfPhase'], out:'pfOut', fn(n,r,s){
+  if(!ok(...n) || n[2]<=0 || n[2]>1 || n[3]<0) return [];
+  const [V,I,PF,h] = n;
+  const three = s[0]==='3';
+  const S = three ? Math.sqrt(3)*V*I : V*I;
+  const P = S*PF, Q = S*Math.sqrt(Math.max(0,1-PF*PF));
+  return [st('Apparent power S', fmt(S),'VA'),
+          st('Active power P', fmt(P),'W','hot'),
+          st('Reactive power Q', fmt(Q),'var'),
+          st('Energy in '+h+' h', fmt(P*h/1000),'kWh')];
+}};
+
+CALCS.lb = {i:['lbL','lbI','lbDi','lbN','lbPhi'], out:'lbOut', fn(n){
+  if(!ok(n[0],n[1],n[2]) || n[0]<=0) return [];
+  const [L,I,dI,N,Phi] = n;
+  const rows = [st('Stored energy U', fmt(0.5*L*I*I),'J','hot'),
+                st('Inductor voltage v', fmt(Math.abs(L*dI)),'V')];
+  if(ok(N,Phi,I) && I!==0 && N>0)
+    rows.push(st('L from NΦ/I', fmt(N*Phi/I),'H'));
+  return rows;
+}};
+
+CALCS.skin = {i:['skinF','skinRho','skinMur'], out:'skinOut', fn(n){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0 || n[2]<1) return [];
+  const w = 2*Math.PI*n[0];
+  const d = Math.sqrt(2*n[1]/(w*MU0*n[2]));
+  return [st('Skin depth δ', fmt(d),'m','hot'),
+          st('Also', fmt(d*1e6),'µm'),
+          st('95% of current within', fmt(3*d*1e6),'µm'),
+          st('At 63%', fmt(d*1e6),'µm')];
+}};
+
+/* ---------- EM waves ---------- */
+CALCS.ew = {i:['ewF','ewEr','ewMr','ewE'], out:'ewOut', fn(n){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0 || n[2]<=0) return [];
+  const [f,er,mur,E] = n;
+  const v = CLIGHT/Math.sqrt(er*mur);
+  const Z = Math.sqrt(MU0*mur/(EPS0*er));
+  return [st('Wave speed v', fmt(v),'m/s','hot'),
+          st('Wavelength λ', fmt(v/f),'m','hot'),
+          st('Intrinsic impedance Z', fmt(Z),'Ω'),
+          st('H field (peak)', fmt(E/Z),'A/m'),
+          st('Average intensity S', fmt(E*E/(2*Z)),'W/m²')];
+}};
+
+CALCS.po = {i:['poE','poZ','poA','poR'], out:'poOut', fn(n){
+  if(!ok(n[0],n[1]) || n[1]<=0 || n[2]<=0 || n[3]<=0) return [];
+  const I = n[0]*n[0]/n[1];
+  return [st('Intensity I', fmt(I),'W/m²','hot'),
+          st('Power through A', fmt(I*n[2]),'W'),
+          st('Isotropic source at r', fmt(4*Math.PI*n[3]*n[3]*I),'W')];
+}};
+
+CALCS.ph = {i:['phF','phLam','phN'], out:'phOut', fn(n){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0 || n[2]<0) return [];
+  const E1 = PLANCK*n[0], E2 = PLANCK*CLIGHT/(n[1]*1e-9);
+  const p = PLANCK/(n[1]*1e-9);
+  const rel = Math.abs(E1-E2)/Math.max(E1,E2);
+  return [st('E from frequency', fmt(E1/QE),'eV','hot'),
+          st('E from wavelength', fmt(E2/QE),'eV'),
+          st('Photon momentum p', fmt(p),'kg·m/s'),
+          st('Beam power', fmt(n[2]*E2),'W'),
+          st('f–λ consistency', rel<0.01 ? 'consistent' : 'inputs disagree by '+pct(rel),'', rel<0.01?'good':'bad')];
+}};
+
+CALCS.rp = {i:['rpI','rpA'], s:['rpSurf'], out:'rpOut', fn(n,r,s){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0) return [];
+  const refl = s[0]==='ref';
+  const pr = refl ? 2*n[0]/CLIGHT : n[0]/CLIGHT;
+  return [st('Radiation pressure', fmt(pr),'Pa','hot'),
+          st('Force on area', fmt(pr*n[1]),'N'),
+          st('Surface', refl ? 'perfect reflector (2I/c)' : 'perfect absorber (I/c)')];
+}};
+
+CALCS.fspl = {i:['fsF','fsD','fsPt'], out:'fsOut', fn(n){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0) return [];
+  const [fG,d,pt] = n;
+  const fspl = 20*Math.log10(d) + 20*Math.log10(fG*1000) + 32.44;
+  return [st('Free-space path loss', fmt(fspl),'dB','hot'),
+          st('Received power (isotropic)', fmt(pt-fspl),'dBm','hot'),
+          st('Wavelength λ', fmt(0.299792458/fG),'m')];
+}};
+
+/* ---------- materials ---------- */
+CALCS.reswire = {i:['resRho','resL','resA','resI'], s:['resMat'], out:'rwOut', fn(n,r,s){
+  if(!ok(...n) || n[0]<=0 || n[1]<=0 || n[2]<=0) return [];
+  const [rho,L,A,I] = n;
+  const R = rho*L/(A*1e-6);
+  return [st('Resistance R', fmt(R),'Ω','hot'),
+          st('Voltage drop', fmt(R*I),'V','hot'),
+          st('Power lost', fmt(R*I*I),'W'),
+          st('Current density', fmt(I/(A*1e-6)/1e6),'A/mm²')];
+}};
+
+CALCS.hall = {i:['haI','haB','haN','haT'], out:'haOut', fn(n){
+  if(!ok(...n) || n[2]<=0 || n[3]<=0) return [];
+  const [I,B,ncm,t] = n;
+  const VH = I*B/(ncm*1e6*QE*t*1e-6);
+  return [st('Hall voltage V_H', fmt(VH),'V','hot'),
+          st('Also', fmt(VH*1e3),'mV'),
+          st('Sensitivity', fmt(Math.abs(VH/B)*1e3),'mV/T')];
+}};
+
+CALCS.dr = {i:['drI','drN','drA'], out:'drOut', fn(n){
+  if(!ok(...n) || n[1]<=0 || n[2]<=0) return [];
+  const [I,ncm,A] = n;
+  const vd = I/(ncm*1e6*QE*A*1e-6);
+  return [st('Drift velocity v_d', fmt(vd),'m/s','hot'),
+          st('Also', fmt(vd*1e6),'µm/s'),
+          st('Time to travel 1 m', fmt(1/Math.abs(vd)/3600),'h'),
+          st('Current density J', fmt(I/(A*1e-6)/1e6),'A/mm²')];
+}};
+
+CALCS.bg = {i:['bgEg'], out:'bgOut', fn(n){
+  if(!ok(n[0]) || n[0]<=0) return [];
+  const lam = 1239.84/n[0];
+  return [st('Cutoff wavelength λ_max', fmt(lam),'nm','hot'),
+          st('Band', lam>700 ? 'infrared — sub-gap light passes' : lam>400 ? 'visible light absorbed' : 'ultraviolet needed'),
+          st('Photon at cutoff', fmt(n[0]),'eV')];
+}};
+
+/* ---------- calc engine ---------- */
+function runCalc(key){
+  const d = CALCS[key];
+  const raw = d.i.map(id => byId(id).value.trim());
+  const n = raw.map(s => { const v = parseFloat(s); return isFinite(v) ? v : NaN; });
+  const sels = (d.s||[]).map(id => byId(id).value);
+  let rows = [];
+  try { rows = d.fn(n, raw, sels) || []; }
+  catch(e){ rows = [st('Error', e.message || 'invalid input','','bad')]; }
+  if(!rows.length) rows = [st('Status','waiting for valid inputs','','bad')];
+  render(d.out, rows);
+}
+
+const RUNNERS = [];
+Object.keys(CALCS).forEach(key => {
+  const card = document.querySelector('[data-calc="'+key+'"]');
+  if(!card) return;
+  const run = () => runCalc(key);
+  card.querySelectorAll('input,select').forEach(el => {
+    el.addEventListener('input', run);
+    el.addEventListener('change', run);
+  });
+  const btn = card.querySelector('.btn.primary');
+  if(btn) btn.addEventListener('click', run);
+  RUNNERS.push(run);
+});
+/* material preset writes resistivity into the input */
+byId('resMat').addEventListener('change', () => {
+  byId('resRho').value = byId('resMat').value;
+  runCalc('reswire');
+});
+
+/* ============================================================
+   Tool registry, search, chips, navigation
+   ============================================================ */
+const PANES = {electro:'Electrostatics', circuits:'Circuits', magnet:'Magnetism',
+               ac:'AC + Induction', waves:'EM Waves', materials:'Materials'};
+const TOOLS = [
+  {o:'coulomb', n:'Coulomb force',           p:'electro',  h:'F = kq₁q₂/r²'},
+  {o:'electricField', n:'Electric field',    p:'electro',  h:'E = kq/r²'},
+  {o:'potential', n:'Potential + energy',    p:'electro',  h:'V = kq/r, U = qV'},
+  {o:'capacitance', n:'Capacitor designer',  p:'electro',  h:'Q = CV, 5 geometries'},
+  {o:'gauss', n:'Gauss law symmetry',        p:'electro',  h:'Φ = Q/ε₀'},
+  {o:'dipole', n:'Electric dipole',          p:'electro',  h:'E = 2kp/r³ (axial)'},
+  {o:'energydensity', n:'Energy density',    p:'electro',  h:'uₑ = ½εE²'},
+  {o:'dcCircuit', n:'Ohm + power',           p:'circuits', h:'V = IR, P = VI'},
+  {o:'resistors', n:'Resistor networks',     p:'circuits', h:'series / parallel / mixed'},
+  {o:'kirchhoff', n:'Two-loop Kirchhoff',    p:'circuits', h:'solve KVL directly'},
+  {o:'rc', n:'RC transient',                 p:'circuits', h:'τ = RC'},
+  {o:'rl', n:'RL transient',                 p:'circuits', h:'τ = L/R'},
+  {o:'battery', n:'Battery pack',            p:'circuits', h:'pack V, I, losses'},
+  {o:'energycost', n:'Energy + cost',        p:'circuits', h:'kWh and tariff'},
+  {o:'magneticForce', n:'Lorentz force',     p:'magnet',   h:'F = qvB sinθ'},
+  {o:'particle', n:'Particle in B field',    p:'magnet',   h:'r = mv⊥/qB'},
+  {o:'fieldWire', n:'Long-wire field',       p:'magnet',   h:'B = μ₀I/2πr'},
+  {o:'solenoid', n:'Solenoid field',         p:'magnet',   h:'B = μ₀nI'},
+  {o:'wireforce', n:'Force on wire',         p:'magnet',   h:'F = BIL sinθ'},
+  {o:'torque', n:'Magnetic torque',          p:'magnet',   h:'τ = mB sinθ'},
+  {o:'induction', n:'Faraday induction',     p:'ac',       h:'ℰ = NΔΦ/Δt'},
+  {o:'rlc', n:'RLC series AC',               p:'ac',       h:'Z, phase, resonance'},
+  {o:'transformer', n:'Transformer',         p:'ac',       h:'turns ratio'},
+  {o:'powerfactor', n:'AC power + PF',       p:'ac',       h:'P, Q, S'},
+  {o:'inductor', n:'Inductor basics',        p:'ac',       h:'U = ½LI²'},
+  {o:'skin', n:'Skin depth',                 p:'ac',       h:'δ = √(2ρ/ωμ)'},
+  {o:'emwave', n:'EM wave',                  p:'waves',    h:'v, λ, Z, S'},
+  {o:'poynting', n:'Poynting + intensity',   p:'waves',    h:'I = E²/Z'},
+  {o:'photon', n:'Photon energy',            p:'waves',    h:'E = hf, p = h/λ'},
+  {o:'pressure', n:'Radiation pressure',     p:'waves',    h:'p = I/c, 2I/c'},
+  {o:'fspl', n:'Path loss + link budget',    p:'waves',    h:'FSPL dB'},
+  {o:'reswire', n:'Conductor + voltage drop',p:'materials',h:'R = ρL/A'},
+  {o:'hall', n:'Hall effect',                p:'materials',h:'V_H = IB/nqt'},
+  {o:'drift', n:'Drift velocity',            p:'materials',h:'v_d = I/nqA'},
+  {o:'bandgap', n:'Band gap cutoff',         p:'materials',h:'λ = 1240/E_g'},
+];
+
+const toolList = byId('toolList'), searchEl = byId('toolSearch');
+function renderTools(filter){
+  const q = (filter||'').trim().toLowerCase();
+  const items = TOOLS.filter(t => !q || (t.n+' '+t.h+' '+t.p+' '+PANES[t.p]).toLowerCase().includes(q));
+  toolList.innerHTML = items.map(t =>
+    `<button class="list-btn" data-open="${t.o}"><strong>${t.n}</strong><span>${t.h} · ${PANES[t.p]}</span></button>`
+  ).join('') || '<div class="note">No calculator matches.</div>';
+}
+renderTools('');
+searchEl.addEventListener('input', () => renderTools(searchEl.value));
+byId('clearSearch').addEventListener('click', () => { searchEl.value=''; renderTools(''); searchEl.focus(); });
+searchEl.addEventListener('keydown', e => {
+  if(e.key==='Enter'){ const b = toolList.querySelector('.list-btn'); if(b) b.click(); }
+});
+document.querySelectorAll('[data-open]').forEach(b =>
+  b.addEventListener('click', () => openTool(b.dataset.open)));
+
+function go(pane){
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id==='pane-'+pane));
+  document.querySelectorAll('[data-pane]').forEach(b => b.classList.toggle('on', b.dataset.pane===pane));
+  window.scrollTo({top:0});
+  if(pane==='visual') Lab.start(); else Lab.stop();
+}
+function openTool(o){
+  const t = TOOLS.find(x => x.o===o);
+  if(!t) return;
+  go(t.p);
+  setTimeout(() => {
+    const card = byId('tool-'+o);
+    if(card){
+      card.scrollIntoView({behavior:'smooth', block:'center'});
+      card.classList.remove('flash'); void card.offsetWidth;
+      card.classList.add('flash');
+      setTimeout(() => card.classList.remove('flash'), 1300);
+    }
+  }, 120);
+}
+document.querySelectorAll('[data-pane]').forEach(b => b.addEventListener('click', () => go(b.dataset.pane)));
+
+/* ============================================================
+   VISUAL LAB — one state object, one render loop, live controls
+   ============================================================ */
+const Lab = (() => {
+  const cv = byId('labCanvas'), ctx = cv.getContext('2d');
+  const controlsEl = byId('labControls'), readEl = byId('labReadouts'),
+        captionEl = byId('labCaption'), modesEl = byId('labModes'),
+        playBtn = byId('labPlay'), resetBtn = byId('labReset'),
+        speedEl = byId('labSpeed'), speedVal = byId('labSpeedVal');
+
+  const MONO = '"IBM Plex Mono",Consolas,monospace';
+  const COL = { bg:'#191512', grid:'rgba(231,229,228,.07)', axis:'rgba(231,229,228,.16)',
+                trace:'#fbbf24', soft:'#a8a29e', cream:'#f5f5f4' };
+
+  const S = { mode:'efield', t:0, playing:true, speed:1, p:{}, raf:0, active:false };
+
+  /* ---------- drawing helpers (pixel coordinates) ---------- */
+  function ln(x1,y1,x2,y2,color,lw,dash){
+    ctx.save();
+    ctx.strokeStyle = color; ctx.lineWidth = lw||1.6;
+    if(dash) ctx.setLineDash(dash);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.restore();
+  }
+  function dot(x,y,r,color){ ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); }
+  function txt(s,x,y,color,size,align){
+    ctx.font = (size||10)+'px '+MONO;
+    ctx.fillStyle = color || 'rgba(245,245,244,.75)';
+    ctx.textAlign = align||'left';
+    ctx.fillText(s,x,y);
+    ctx.textAlign = 'left';
+  }
+  function head(x,y,dx,dy,color){
+    const L = Math.hypot(dx,dy)||1, ux = dx/L, uy = dy/L;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x-8*ux+4*uy, y-8*uy-4*ux);
+    ctx.lineTo(x-8*ux-4*uy, y-8*uy+4*ux);
+    ctx.closePath(); ctx.fill();
+  }
+  function bgFill(w,h){ ctx.fillStyle = COL.bg; ctx.fillRect(0,0,w,h); }
+  function fHz(v){
+    const f = Math.pow(10,v);
+    return f>=1e9 ? (f/1e9).toFixed(2)+' GHz' : f>=1e6 ? (f/1e6).toFixed(2)+' MHz'
+         : f>=1e3 ? (f/1e3).toFixed(1)+' kHz' : f.toFixed(0)+' Hz';
+  }
+
+  /* ---------- experiments ---------- */
+  const MODES = {
+
+    /* 1 ─ two point charges: field lines ------------------------ */
+    efield:{
+      label:'Charge field lines',
+      hint:'E-field lines of two point charges, integrated from the real vector law (E ∝ 1/r²). Amber = positive, white = negative; arrowheads show the direction of E. Readouts give the field and potential at the midpoint.',
+      params:[
+        {id:'q1',label:'Charge q₁', min:-5, max:5, step:.25, val:3, unit:'q'},
+        {id:'q2',label:'Charge q₂', min:-5, max:5, step:.25, val:-3, unit:'q'},
+        {id:'d', label:'Separation',min:60, max:280, step:4, val:170, unit:'px'},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        const ch = [{q:p.q1, x:w/2-p.d/2, y:h/2}, {q:p.q2, x:w/2+p.d/2, y:h/2}];
+        const Efield = (x,y) => {
+          let Ex=0, Ey=0;
+          ch.forEach(c => {
+            if(Math.abs(c.q)<.05) return;
+            const dx=x-c.x, dy=y-c.y, r2=dx*dx+dy*dy, r=Math.sqrt(r2);
+            if(r<2) return;
+            const kq = c.q*9000;
+            Ex += kq*dx/(r2*r); Ey += kq*dy/(r2*r);
+          });
+          return [Ex,Ey];
+        };
+        ch.forEach((c,ci) => {
+          if(Math.abs(c.q)<.05) return;
+          const nL = Math.round(7 + Math.abs(c.q)*2.4);
+          for(let a=0;a<nL;a++){
+            const ang = a/nL*2*Math.PI + (ci? Math.PI/nL : 0);
+            let x = c.x+Math.cos(ang)*17, y = c.y+Math.sin(ang)*17;
+            const dir = c.q>0 ? 1 : -1;
+            const pts = [[x,y]];
+            let steps = 0;
+            while(steps++ < 800){
+              const [Ex,Ey] = Efield(x,y);
+              const m = Math.hypot(Ex,Ey);
+              if(m<1e-9) break;
+              x += Ex/m*4.5*dir; y += Ey/m*4.5*dir;
+              pts.push([x,y]);
+              if(x<-20||x>w+20||y<-20||y>h+20) break;
+              let hit = false;
+              ch.forEach(cc => { if(cc!==c && Math.hypot(x-cc.x,y-cc.y)<13) hit = true; });
+              if(hit) break;
+            }
+            ctx.strokeStyle = 'rgba(245,245,244,.3)'; ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            pts.forEach(([px,py],i) => i ? ctx.lineTo(px,py) : ctx.moveTo(px,py));
+            ctx.stroke();
+            for(let i=55;i<pts.length-4;i+=75){
+              head(pts[i][0], pts[i][1], pts[i+1][0]-pts[i][0], pts[i+1][1]-pts[i][1],
+                   'rgba(245,245,244,.55)');
+            }
+          }
+        });
+        ch.forEach(c => {
+          if(Math.abs(c.q)<.05) return;
+          const col = c.q>0 ? '#fbbf24' : '#f5f5f4';
+          dot(c.x, c.y, 12, col);
+          ctx.strokeStyle = '#191512'; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(c.x-6, c.y); ctx.lineTo(c.x+6, c.y);
+          if(c.q>0){ ctx.moveTo(c.x, c.y-6); ctx.lineTo(c.x, c.y+6); }
+          ctx.stroke();
+          txt((c.q>0?'+':'')+c.q.toFixed(1), c.x-16, c.y-19, col);
+        });
+      },
+      ro(p){
+        const r = p.d/2;
+        const Em = Math.abs(9000*(p.q1-p.q2)/(r*r));
+        const Vm = 9000*(p.q1+p.q2)/r;
+        const like = p.q1*p.q2 > 0;
+        return [['E midpoint', Em.toFixed(1)+' u'],['V midpoint', Vm.toFixed(0)+' u'],
+                ['charges', like ? 'like — repel' : 'opposite — attract']];
+      }
+    },
+
+    /* 2 ─ cyclotron motion -------------------------------------- */
+    cyclo:{
+      label:'Cyclotron motion',
+      hint:'A charged particle in a uniform field B (into the page). The pitch angle tilts the circular orbit into a helix; the particle charge flips the sense of rotation. Model units, real right-hand-rule geometry.',
+      params:[
+        {id:'B', label:'Field B',      min:.5, max:5,  step:.05, val:1.5, unit:'u'},
+        {id:'v', label:'Speed v',      min:.5, max:5,  step:.05, val:2.5, unit:'u'},
+        {id:'th',label:'Pitch angle',  min:20, max:90, step:1,   val:90,  unit:'°'},
+        {id:'sg',label:'Charge',type:'select',val:'pos',
+         options:[{v:'pos',t:'Positive'},{v:'neg',t:'Negative'}]},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        // uniform B into page
+        ctx.strokeStyle='rgba(168,161,158,.35)'; ctx.lineWidth=1;
+        for(let gx=40; gx<w; gx+=64) for(let gy=40; gy<h; gy+=64){
+          ln(gx-5,gy-5,gx+5,gy+5,'rgba(168,161,158,.35)',1);
+          ln(gx-5,gy+5,gx+5,gy-5,'rgba(168,161,158,.35)',1);
+        }
+        txt('B (into page)', 12, 18, COL.soft);
+        const rpx = (p.v*Math.sin(p.th*D2R)/p.B)*44;
+        const om = p.B*1.6, T = 2*Math.PI/om;
+        const drift = p.v*Math.cos(p.th*D2R)*26;
+        const dir = p.sg==='neg' ? -1 : 1;
+        let tt = S.t;
+        if(drift > 1) tt = S.t % Math.max(1,(w*0.78)/drift);
+        // guiding circle (dashed)
+        const cxg = w*0.16 + drift*tt, cyg = h/2;
+        ctx.setLineDash([4,6]);
+        ctx.strokeStyle = 'rgba(245,245,244,.2)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(cxg, cyg, rpx*0.92, rpx, 0, 0, 7); ctx.stroke();
+        ctx.setLineDash([]);
+        // helical path (last 3T)
+        ctx.strokeStyle = 'rgba(245,245,244,.5)'; ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for(let k=0;k<=240;k++){
+          const tp = tt - 3*T + 3*T*k/240;
+          const x = w*0.16 + drift*tp + Math.cos(om*tp*dir)*rpx*0.92;
+          const y = cyg + Math.sin(om*tp*dir)*rpx;
+          k ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+        }
+        ctx.stroke();
+        const x = cxg + Math.cos(om*tt*dir)*rpx*0.92;
+        const y = cyg + Math.sin(om*tt*dir)*rpx;
+        dot(x, y, 5.5, COL.trace);
+        head(x, y, -Math.sin(om*tt*dir), Math.cos(om*tt*dir)*dir, COL.trace);
+      },
+      ro(p){
+        const T = 2*Math.PI/(p.B*1.6);
+        const drift = p.v*Math.cos(p.th*D2R)*26;
+        return [['r = v⊥/B', (p.v*Math.sin(p.th*D2R)/p.B).toFixed(2)+' u'],
+                ['period T', T.toFixed(2)+' s'],
+                ['pitch/turn', (drift*T).toFixed(0)+' px'],
+                ['sense', p.sg==='neg'?'clockwise':'counterclockwise']];
+      }
+    },
+
+    /* 3 ─ RC transient ------------------------------------------ */
+    rc:{
+      label:'RC transient',
+      hint:'Capacitor voltage relaxing to its final value with time constant τ (amber), plus the current shape (dashed). The 63.2% marker shows the meaning of τ. The cursor tracks simulation time and loops.',
+      params:[
+        {id:'tau',label:'Time constant τ',min:.2, max:5,  step:.05, val:1, unit:'s'},
+        {id:'Vf', label:'Final voltage',  min:0,  max:12, step:.2,  val:5, unit:'V'},
+        {id:'V0', label:'Initial Vc',     min:0,  max:8,  step:.2,  val:0, unit:'V'},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        const pad = 40, top = 26, bot = h-40;
+        const X = tt => pad + (tt/(5*p.tau))*(w-2*pad);
+        const Y = v => bot - (v/13)*(bot-top);
+        ln(pad, bot, w-10, bot, COL.axis, 1);
+        ln(pad, Y(0), w-10, Y(0), COL.grid, 1);
+        [0,2,4,6,8,10,12].forEach(v => { ln(pad-4, Y(v), pad, Y(v), COL.soft, 1);
+          txt(String(v), pad-24, Y(v)+3, COL.soft, 9); });
+        txt('Vc (V)', pad-30, top-8, COL.soft, 9);
+        // current shape (dashed, 0..1 scaled to 12)
+        ctx.setLineDash([5,5]);
+        ctx.strokeStyle = 'rgba(245,245,244,.35)'; ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        for(let tt=0; tt<=5*p.tau; tt+=5*p.tau/220){
+          const inr = Math.exp(-tt/p.tau);
+          const px = X(tt), py = Y(inr*12);
+          tt===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+        }
+        ctx.stroke(); ctx.setLineDash([]);
+        txt('i(t) shape', X(0.2*p.tau), Y(11.6), 'rgba(245,245,244,.5)', 9);
+        // Vc curve
+        ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        for(let tt=0; tt<=5*p.tau; tt+=5*p.tau/220){
+          const v = p.Vf + (p.V0-p.Vf)*Math.exp(-tt/p.tau);
+          const px = X(tt), py = Y(v);
+          tt===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+        }
+        ctx.stroke();
+        // τ marker
+        const v63 = p.V0 + 0.632*(p.Vf-p.V0);
+        ln(X(p.tau), top, X(p.tau), bot, COL.soft, 1, [3,5]);
+        ln(pad, Y(v63), X(p.tau), Y(v63), COL.soft, 1, [3,5]);
+        txt('τ · 63.2%', X(p.tau)+5, Y(v63)-6, COL.cream);
+        // cursor
+        const tc = (S.t % (6*p.tau));
+        if(tc <= 5*p.tau){
+          const v = p.Vf + (p.V0-p.Vf)*Math.exp(-tc/p.tau);
+          ln(X(tc), top, X(tc), bot, 'rgba(245,245,244,.4)', 1, [4,5]);
+          dot(X(tc), Y(v), 4, COL.cream);
+        }
+        txt('t → 5τ', w-56, bot+14, COL.soft);
+      },
+      ro(p){
+        const tc = (S.t % (6*p.tau));
+        const v = p.Vf + (p.V0-p.Vf)*Math.exp(-tc/p.tau);
+        const pr = Math.abs(p.Vf-p.V0)>1e-9 ? (v-p.V0)/(p.Vf-p.V0) : 1;
+        return [['t', (tc<=5*p.tau?tc:5*p.tau).toFixed(2)+' s'],
+                ['Vc(t)', v.toFixed(2)+' V'],
+                ['settled', (Math.max(0,Math.min(1,pr))*100).toFixed(1)+'%']];
+      }
+    },
+
+    /* 4 ─ RLC resonance curve ----------------------------------- */
+    rlc:{
+      label:'RLC resonance',
+      hint:'Normalised current amplitude and phase of a series RLC as frequency sweeps (cursor follows simulation time). Real L, R, C values — the plot window auto-fits the resonance bandwidth.',
+      params:[
+        {id:'R',label:'Resistance R',min:1,   max:100, step:1,   val:10,  unit:'Ω'},
+        {id:'L',label:'Inductance L',min:1,   max:100, step:.5,  val:10,  unit:'mH'},
+        {id:'C',label:'Capacitance C',min:10, max:1000,step:10,  val:100, unit:'µF'},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        const R = p.R, L = p.L*1e-3, C = p.C*1e-6;
+        const f0 = 1/(2*Math.PI*Math.sqrt(L*C));
+        const BW = Math.max(R/(2*Math.PI*L), f0*0.02);
+        const fmin = Math.max(0, f0-4*BW), fmax = f0+4*BW;
+        const pad = 44, mid = h*0.5, top = 30, bot = h-56;
+        const X = f => pad + (f-fmin)/(fmax-fmin)*(w-2*pad);
+        const YI = v => bot - v*(bot-top)*0.92;
+        const YP = ph => mid + 46 - ph/90*(h*0.36);
+        ln(pad, bot, w-10, bot, COL.axis, 1);
+        ln(pad, YP(0), w-10, YP(0), COL.grid, 1);
+        // shaded ±BW/2 band around f0
+        ctx.fillStyle = 'rgba(251,191,36,.06)';
+        ctx.fillRect(X(f0-BW/2), top, X(f0+BW/2)-X(f0-BW/2), bot-top);
+        ln(X(f0), top, X(f0), bot, COL.soft, 1, [3,5]);
+        txt('f₀', X(f0)-6, top+10, COL.cream);
+        // phase curve
+        ctx.strokeStyle = 'rgba(245,245,244,.4)'; ctx.lineWidth = 1.3;
+        ctx.beginPath();
+        for(let k=0;k<=220;k++){
+          const f = fmin + (fmax-fmin)*k/220, wv = 2*Math.PI*f;
+          const Xc = 1/(wv*C), ph = Math.atan2(wv*L-Xc, R)/D2R;
+          const px = X(f), py = YP(ph);
+          k ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+        }
+        ctx.stroke();
+        txt('φ (deg)', pad-34, mid+52, COL.soft, 9);
+        // current amplitude
+        ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        for(let k=0;k<=220;k++){
+          const f = fmin + (fmax-fmin)*k/220, wv = 2*Math.PI*f;
+          const Xc = 1/(wv*C), In = R/Math.hypot(R, wv*L-Xc);
+          const px = X(f), py = YI(In);
+          k ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+        }
+        ctx.stroke();
+        txt('I/I₀', pad-32, top+6, COL.trace, 9);
+        // frequency ticks
+        for(let k=0;k<=4;k++){
+          const f = fmin + (fmax-fmin)*k/4;
+          ln(X(f), bot, X(f), bot+4, COL.soft, 1);
+          txt((f>=1000?(f/1000).toFixed(1)+'k':f.toFixed(0)), X(f)-12, bot+16, COL.soft, 9);
+        }
+        // sweeping cursor
+        const fc = fmin + ((S.t % 8)/8)*(fmax-fmin);
+        const wv = 2*Math.PI*fc, In = R/Math.hypot(R, wv*L-1/(wv*C));
+        ln(X(fc), top, X(fc), bot, 'rgba(245,245,244,.4)', 1, [4,5]);
+        dot(X(fc), YI(In), 4, COL.cream);
+      },
+      ro(p){
+        const L = p.L*1e-3, C = p.C*1e-6;
+        const f0 = 1/(2*Math.PI*Math.sqrt(L*C));
+        const Q = Math.sqrt(L/C)/p.R;
+        return [['f₀', f0.toFixed(1)+' Hz'],['Q', Q.toFixed(2)],
+                ['BW', (f0/Q).toFixed(1)+' Hz'],['type', Q<0.5?'overdamped-ish':Q<5?'wide resonance':'sharp resonance']];
+      }
+    },
+
+    /* 5 ─ two parallel wires ------------------------------------ */
+    wires:{
+      label:'Parallel wires',
+      hint:'End view of two current-carrying wires (⊙ out of page, ⊗ into page). Field circles fade as 1/r and their dashes rotate with the right-hand-rule sense. Readouts: force between wires and the net field at the midpoint.',
+      params:[
+        {id:'I1',label:'Current I₁',min:-10, max:10, step:.5, val:5, unit:'A'},
+        {id:'I2',label:'Current I₂',min:-10, max:10, step:.5, val:5, unit:'A'},
+        {id:'d', label:'Separation', min:80, max:300, step:4, val:180, unit:'px'},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        const x1 = w/2-p.d/2, x2 = w/2+p.d/2, cy = h/2;
+        const wire = (x,I) => {
+          if(Math.abs(I)<.05) { dot(x,cy,9,COL.soft); txt('I = 0', x-14, cy-18, COL.soft); return; }
+          const out = I>0;
+          // field circles, alpha ~ 1/r
+          for(let k=1;k<=6;k++){
+            const r = 22+k*24;
+            ctx.strokeStyle = 'rgba(251,191,36,'+(0.42/k).toFixed(3)+')';
+            ctx.lineWidth = 1.4;
+            ctx.setLineDash([7,9]);
+            ctx.lineDashOffset = -S.t*14*Math.sign(I);
+            ctx.beginPath(); ctx.arc(x, cy, r, 0, 7); ctx.stroke();
+            ctx.setLineDash([]); ctx.lineDashOffset = 0;
+            // tangential arrowhead (right-hand rule: out of page → CCW)
+            const ang = -0.6;
+            const ax = x + r*Math.cos(ang), ay = cy + r*Math.sin(ang);
+            const s = Math.sign(I);
+            head(ax, ay, -Math.sin(ang)*s, Math.cos(ang)*s, 'rgba(251,191,36,.7)');
+          }
+          dot(x, cy, 9, out ? COL.trace : COL.cream);
+          ctx.strokeStyle = '#191512'; ctx.lineWidth = 1.6;
+          if(out){ dot(x, cy, 2.5, '#191512'); }
+          else {
+            ctx.beginPath();
+            ctx.moveTo(x-4,cy-4); ctx.lineTo(x+4,cy+4);
+            ctx.moveTo(x-4,cy+4); ctx.lineTo(x+4,cy-4);
+            ctx.stroke();
+          }
+          txt('I '+(I>0?'+':'')+I.toFixed(1)+' A', x-20, cy-20, out?COL.trace:COL.cream);
+        };
+        wire(x1, p.I1); wire(x2, p.I2);
+        // force arrows
+        const attract = p.I1*p.I2 > 0;
+        const col = attract ? '#34d399' : '#f87171';
+        const a1x = x1+16, a2x = x2-16;
+        if(attract){
+          head(a1x+26, cy, 1, 0, col); ln(a1x, cy, a1x+22, cy, col, 2);
+          head(a2x-26, cy, -1, 0, col); ln(a2x, cy, a2x-22, cy, col, 2);
+        } else {
+          head(a1x-26, cy, -1, 0, col); ln(a1x, cy, a1x-22, cy, col, 2);
+          head(a2x+26, cy, 1, 0, col); ln(a2x, cy, a2x+22, cy, col, 2);
+        }
+        txt(attract ? 'attract' : 'repel', w/2-22, cy+34, col);
+      },
+      ro(p){
+        const F = 20*Math.abs(p.I1*p.I2)/p.d;
+        const Bm = 20*Math.abs(p.I1-p.I2)/p.d;
+        return [['F/L', F.toFixed(1)+' u'],['force', p.I1*p.I2>0?'attractive':'repulsive'],
+                ['B midpoint', Bm.toFixed(1)+' u'],
+                ['fields between', Math.abs(p.I1-p.I2)<0.05?'cancel (equal currents)':'partially cancel']];
+      }
+    },
+
+    /* 6 ─ AC waveforms + power ---------------------------------- */
+    acwave:{
+      label:'AC v, i + power',
+      hint:'Voltage (amber) and current (cream) sinusoids with a phase angle φ between them; the faint trace below is instantaneous power with its average P̄ = V·I·cosφ/2. The phase slider directly sets the power factor.',
+      params:[
+        {id:'V', label:'V amplitude',min:1,  max:10, step:.2, val:8, unit:'V'},
+        {id:'I', label:'I amplitude',min:.5, max:5,  step:.1, val:3, unit:'A'},
+        {id:'ph',label:'Phase φ (I−V)',min:-90, max:90, step:1, val:30, unit:'°'},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        const cy = h*0.38;
+        const Av = p.V*7, Ai = p.I*13;
+        const k = 2*Math.PI/(w*0.5); // 2 cycles across
+        const om = 2*Math.PI*0.8;
+        ln(10, cy, w-10, cy, COL.axis, 1);
+        // instantaneous power band
+        const pTop = h-72, pBot = h-24, pMid = (pTop+pBot)/2;
+        ln(10, pMid, w-10, pMid, COL.axis, 1);
+        ctx.strokeStyle = 'rgba(168,161,158,.4)'; ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        for(let x=12;x<=w-12;x+=3){
+          const th = k*x - om*S.t;
+          const pv = Math.sin(th)*Math.sin(th - p.ph*D2R);
+          const py = pMid - pv*(pBot-pTop)/2;
+          x===12 ? ctx.moveTo(x,py) : ctx.lineTo(x,py);
+        }
+        ctx.stroke();
+        const pav = Math.cos(p.ph*D2R)*(pBot-pTop)/2;
+        ln(12, pMid-pav, w-12, pMid-pav, COL.trace, 1.4, [5,4]);
+        txt('p(t) and average P̄', 14, pTop-6, COL.soft, 9);
+        // v and i
+        ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        for(let x=12;x<=w-12;x+=3){
+          const th = k*x - om*S.t;
+          const py = cy - Math.sin(th)*Av;
+          x===12 ? ctx.moveTo(x,py) : ctx.lineTo(x,py);
+        }
+        ctx.stroke();
+        ctx.strokeStyle = COL.cream; ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        for(let x=12;x<=w-12;x+=3){
+          const th = k*x - om*S.t;
+          const py = cy - Math.sin(th - p.ph*D2R)*Ai;
+          x===12 ? ctx.moveTo(x,py) : ctx.lineTo(x,py);
+        }
+        ctx.stroke();
+        txt('v(t)', 16, cy-Av-8, COL.trace, 10);
+        txt('i(t)', 54, cy+Ai+16, COL.cream, 10);
+        txt('φ = '+Math.round(p.ph)+'°', w/2-24, 20, COL.soft, 10);
+      },
+      ro(p){
+        const pf = Math.cos(p.ph*D2R);
+        return [['φ', Math.round(p.ph)+'°'],['PF', pf.toFixed(3)],
+                ['P̄', (p.V*p.I*pf/2).toFixed(1)+' W'],
+                ['P max', (p.V*p.I/2).toFixed(1)+' W']];
+      }
+    },
+
+    /* 7 ─ EM plane wave ----------------------------------------- */
+    emwave:{
+      label:'EM plane wave',
+      hint:'A travelling plane wave: E oscillates vertically (amber), B is orthogonal — shown as ⊙ (out of page) and ⊗ (into page) symbols whose size follows |B|. Both move together at c; E/B = c always.',
+      params:[
+        {id:'A', label:'Amplitude',  min:.3, max:1.2, step:.05, val:.8, unit:''},
+        {id:'N', label:'Cycles shown',min:1.5, max:8,  step:.5,  val:3,  unit:''},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        const cy = h/2;
+        const ph = x => 2*Math.PI*(x/w*p.N) - 2*Math.PI*S.t*0.7;
+        ln(12, cy, w-12, cy, COL.axis, 1);
+        // B symbols along axis
+        const step = (w-30)/Math.max(18, Math.round(p.N*9));
+        for(let x=20; x<w-16; x+=step){
+          const Bv = Math.sin(ph(x));
+          const r = 2.5 + Math.abs(Bv)*8*p.A;
+          const al = 0.25 + Math.abs(Bv)*0.6;
+          ctx.strokeStyle = 'rgba(245,245,244,'+al.toFixed(2)+')';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath(); ctx.arc(x, cy, r, 0, 7); ctx.stroke();
+          if(Bv > 0){ dot(x, cy, Math.max(1.2,r*0.22), 'rgba(245,245,244,'+al+')'); }
+          else {
+            const k = r*0.55;
+            ln(x-k, cy-k, x+k, cy+k, 'rgba(245,245,244,'+al+')', 1.4);
+            ln(x-k, cy+k, x+k, cy-k, 'rgba(245,245,244,'+al+')', 1.4);
+          }
+        }
+        // E curve
+        ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        for(let x=14; x<=w-14; x+=3){
+          const py = cy - Math.sin(ph(x))*p.A*(h*0.3);
+          x===14 ? ctx.moveTo(x,py) : ctx.lineTo(x,py);
+        }
+        ctx.stroke();
+        // E arrows
+        for(let x=20; x<w-16; x+=step){
+          const Ev = Math.sin(ph(x))*p.A*(h*0.3);
+          if(Math.abs(Ev)>5){ ln(x, cy, x, cy-Ev, COL.trace, 1.4); head(x, cy-Ev, 0, -Math.sign(Ev), COL.trace); }
+        }
+        // propagation + wavelength bracket
+        const lamPx = w/p.N;
+        ln(w/2-lamPx/2, 22, w/2+lamPx/2, 22, COL.soft, 1);
+        [w/2-lamPx/2, w/2+lamPx/2].forEach(x => ln(x, 18, x, 26, COL.soft, 1));
+        txt('λ', w/2-3, 14, COL.soft);
+        head(w-26, 40, 1, 0, COL.cream);
+        ln(w-70, 40, w-26, 40, COL.cream, 1.6);
+        txt('c', w-52, 32, COL.cream);
+        txt('E', 14, 26, COL.trace, 11);
+        txt('B', 14, 44, COL.cream, 11);
+      },
+      ro(p){
+        return [['v','c (2.998×10⁸ m/s)'],['E/B','c'],['Z₀','376.73 Ω'],
+                ['cycles', p.N.toFixed(1)]];
+      }
+    },
+
+    /* 8 ─ skin depth -------------------------------------------- */
+    skin:{
+      label:'Skin depth',
+      hint:'Current density in a 4 mm conductor slab: J decays as e^(−x/δ) from both surfaces (amber shading, model curve overlay, δ markers). The drifting dots fade as they enter the interior — current really does flow only in the skin.',
+      params:[
+        {id:'lf', label:'Frequency', min:3, max:9.3, step:.05, val:6, unit:'',
+         disp:fHz},
+        {id:'mur',label:'Relative μr', min:1, max:500, step:5, val:1, unit:''},
+        {id:'mat',label:'Conductor', type:'select', val:'1.68e-8',
+         options:[{v:'1.59e-8',t:'Silver'},{v:'1.68e-8',t:'Copper'},{v:'2.44e-8',t:'Gold'},
+                  {v:'2.65e-8',t:'Aluminium'},{v:'9.7e-8',t:'Iron'},{v:'1.1e-6',t:'Nichrome'}]},
+      ],
+      draw(w,h,p,t){
+        bgFill(w,h);
+        const f = Math.pow(10, p.lf), rho = parseFloat(p.mat);
+        const delta = Math.sqrt(2*rho/(2*Math.PI*f*MU0*p.mur));
+        const W = 4e-3;                       // slab width 4 mm
+        const Wpx = Math.min(320, w*0.44), x0 = w/2-Wpx/2;
+        const top = 40, bot = h-46;
+        const X = xm => x0 + xm/W*Wpx;
+        const Jsum = xm => Math.exp(-xm/delta) + Math.exp(-(W-xm)/delta);
+        const Jmax = Jsum(0) > 1e-9 ? Math.max(Jsum(0), Jsum(W/2)*1.02) : 1;
+        // slab heat shading per column
+        for(let px=0; px<Wpx; px++){
+          const J = Jsum(px/Wpx*W)/Jmax;
+          ctx.fillStyle = 'rgba(251,191,36,'+(0.04+0.5*J).toFixed(3)+')';
+          ctx.fillRect(x0+px, top, 1.2, bot-top);
+        }
+        ctx.strokeStyle = COL.soft; ctx.lineWidth = 1.5;
+        ctx.strokeRect(x0, top, Wpx, bot-top);
+        // J curve overlay
+        ctx.strokeStyle = COL.cream; ctx.lineWidth = 2;
+        ctx.beginPath();
+        for(let px=0; px<=Wpx; px+=2){
+          const J = Jsum(px/Wpx*W)/Jmax;
+          const py = bot - J*(bot-top-16);
+          px===0 ? ctx.moveTo(x0+px,py) : ctx.lineTo(x0+px,py);
+        }
+        ctx.stroke();
+        txt('J(x)', x0+Wpx/2-12, top+14, COL.cream);
+        // δ markers
+        if(delta < W){
+          [delta, W-delta].forEach(xm => ln(X(xm), top-6, X(xm), bot, COL.soft, 1, [3,5]));
+          txt('δ', X(delta)-4, top-10, COL.cream);
+        } else {
+          txt('δ > slab — fully penetrated', x0+10, top-10, COL.soft);
+        }
+        txt('conductor slab, w = 4 mm', x0+Wpx/2-64, bot+16, COL.soft);
+        // drifting charge dots, faded by local J
+        for(let k=0;k<26;k++){
+          const rowy = top + 14 + (k%5)*((bot-top-28)/4);
+          const speed = 90;
+          const x = x0 + ((S.t*speed + k*61) % Wpx);
+          const J = Jsum((x-x0)/Wpx*W)/Jmax;
+          ctx.fillStyle = 'rgba(245,245,244,'+(0.15+0.75*J).toFixed(2)+')';
+          ctx.beginPath(); ctx.arc(x, rowy, 2.2, 0, 7); ctx.fill();
+        }
+      },
+      ro(p){
+        const f = Math.pow(10, p.lf), rho = parseFloat(p.mat);
+        const delta = Math.sqrt(2*rho/(2*Math.PI*f*MU0*p.mur));
+        const W = 4e-3;
+        const ratio = W/(2*delta);
+        const matName = {['1.59e-8']:'silver',['1.68e-8']:'copper',['2.44e-8']:'gold',
+                         ['2.65e-8']:'aluminium',['9.7e-8']:'iron',['1.1e-6']:'nichrome'}[p.mat];
+        return [['f', fHz(p.lf)],['δ', (delta*1e6).toFixed(1)+' µm'],
+                ['R_ac/R_dc ≈', ratio>1 ? ratio.toFixed(1) : '~1'],
+                ['material', matName]];
+      }
+    }
+  };
+
+  /* ---------- control system ---------- */
+  function buildControls(){
+    const m = MODES[S.mode];
+    S.p = {};
+    controlsEl.innerHTML = '';
+    m.params.forEach(pd => {
+      S.p[pd.id] = pd.val;
+      const ctl = document.createElement('div'); ctl.className = 'ctl';
+      const row = document.createElement('div'); row.className = 'ctl-row';
+      const lab = document.createElement('label'); lab.textContent = pd.label;
+      const val = document.createElement('span'); val.className = 'ctl-val';
+      row.appendChild(lab); row.appendChild(val);
+      ctl.appendChild(row);
+      let input;
+      if(pd.type==='select'){
+        input = document.createElement('select');
+        pd.options.forEach(o => { const op = document.createElement('option');
+          op.value = o.v; op.textContent = o.t; input.appendChild(op); });
+        input.value = pd.val;
+        const upd = () => { S.p[pd.id] = input.value;
+          val.textContent = input.options[input.selectedIndex].text; };
+        input.addEventListener('change', upd); upd();
+      } else {
+        input = document.createElement('input'); input.type = 'range';
+        input.min = pd.min; input.max = pd.max; input.step = pd.step; input.value = pd.val;
+        const dec = (String(pd.step).split('.')[1]||'').length;
+        const upd = () => { S.p[pd.id] = parseFloat(input.value);
+          val.textContent = pd.disp ? pd.disp(parseFloat(input.value))
+                                    : (+(parseFloat(input.value).toFixed(dec)) + (pd.unit ? ' '+pd.unit : '')); };
+        input.addEventListener('input', upd); upd();
+      }
+      ctl.appendChild(input);
+      controlsEl.appendChild(ctl);
+    });
+  }
+
+  function setMode(m){
+    S.mode = m; S.t = 0;
+    [...modesEl.children].forEach(b => b.classList.toggle('on', b.dataset.mode===m));
+    captionEl.textContent = MODES[m].hint;
+    buildControls();
+  }
+
+  const ICON_PLAY  = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2.5 1.5v9l8-4.5z"/></svg>';
+  const ICON_PAUSE = '<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="2" y="1.5" width="3" height="9" rx="0.8"/><rect x="7" y="1.5" width="3" height="9" rx="0.8"/></svg>';
+  function setPlaying(v){
+    S.playing = v;
+    playBtn.innerHTML = v ? ICON_PAUSE : ICON_PLAY;
+    playBtn.title = v ? 'Pause (Space)' : 'Play (Space)';
+  }
+
+  /* ---------- render loop ---------- */
+  function paint(){
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if(w<10 || h<10) return;
+    const dpr = window.devicePixelRatio || 1;
+    const bw = Math.round(w*dpr), bh = Math.round(h*dpr);
+    if(cv.width!==bw || cv.height!==bh){ cv.width = bw; cv.height = bh; }
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    MODES[S.mode].draw(w,h,S.p,S.t);
+  }
+  function updRead(){
+    const rows = MODES[S.mode].ro ? MODES[S.mode].ro(S.p) : [];
+    readEl.innerHTML = rows.map(r => '<span class="rpill">'+r[0]+' <b>'+r[1]+'</b></span>').join('');
+  }
+  let last = 0, lastRO = 0;
+  function frame(ts){
+    if(!S.active) return;
+    const dt = Math.min(0.05, Math.max(0,(ts-last)/1000)); last = ts;
+    if(S.playing) S.t += dt*S.speed;
+    paint();
+    if(ts-lastRO>120){ lastRO = ts; updRead(); }
+    S.raf = requestAnimationFrame(frame);
+  }
+  function start(){
+    if(S.active) return;
+    S.active = true; last = performance.now();
+    S.raf = requestAnimationFrame(frame);
+  }
+  function stop(){ S.active = false; cancelAnimationFrame(S.raf); }
+  function resetAll(){
+    setMode('efield'); setPlaying(true);
+    S.speed = 1; speedEl.value = 1; speedVal.textContent = '1.00×';
+  }
+
+  /* ---------- wiring ---------- */
+  Object.entries(MODES).forEach(([k,m]) => {
+    const b = document.createElement('button');
+    b.className = 'lab-mode'; b.dataset.mode = k; b.textContent = m.label;
+    b.addEventListener('click', () => setMode(k));
+    modesEl.appendChild(b);
+  });
+  playBtn.addEventListener('click', () => setPlaying(!S.playing));
+  resetBtn.addEventListener('click', () => { S.t = 0; });
+  speedEl.addEventListener('input', () => {
+    S.speed = parseFloat(speedEl.value);
+    speedVal.textContent = S.speed.toFixed(2)+'×';
+  });
+  document.addEventListener('keydown', e => {
+    if(e.code==='Space' && S.active && !/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(e.target.tagName)){
+      e.preventDefault(); setPlaying(!S.playing);
+    }
+  });
+
+  setMode('efield');
+  setPlaying(true);
+  return { start, stop, resetAll };
+})();
+
+/* ============================================================
+   Reference tables
+   ============================================================ */
+(function buildTables(){
+  const CONSTS = [
+    ['Coulomb constant kₑ','8.987 551 792 3 ×10⁹ N·m²/C²'],
+    ['Vacuum permittivity ε₀','8.854 187 8128 ×10⁻¹² F/m'],
+    ['Vacuum permeability μ₀','1.256 637 062 12 ×10⁻⁶ H/m'],
+    ['Speed of light c','299 792 458 m/s (exact)'],
+    ['Elementary charge e','1.602 176 634 ×10⁻¹⁹ C'],
+    ['Planck constant h','6.626 070 15 ×10⁻³⁴ J·s'],
+    ['Electron mass mₑ','9.109 383 7 ×10⁻³¹ kg'],
+    ['Proton mass mₚ','1.672 621 9 ×10⁻²⁷ kg'],
+    ['Free-space impedance Z₀','376.730 313 668 Ω'],
+    ['Copper conductivity σ','5.96 ×10⁷ S/m']
+  ];
+  byId('constTable').innerHTML = CONSTS.map(([a,b]) =>
+    `<tr><td class="l">${a}</td><td class="l">${b}</td></tr>`).join('');
+
+  const EQS = [
+    ['Coulomb','F = kₑ|q₁q₂|/r²','inverse-square'],
+    ['Point-charge field','E = kq/r²','superposes linearly'],
+    ['Potential','V = kq/r, U = qV','scalar'],
+    ['Dipole','p = qd, E_axial = 2kp/r³','far field'],
+    ['Gauss (sphere)','E = Q/4πε₀r²','symmetry required'],
+    ['Gauss (line)','E = λ/2πε₀r','long geometry'],
+    ['Gauss (sheet)','E = σ/2ε₀','independent of distance'],
+    ['Capacitance','C = Q/V, U = ½CV²','plate C = εA/d'],
+    ['Coax','C = 2πεL/ln(r₂/r₁)','per length'],
+    ['Energy density','uₑ = ½εE², u_B = B²/2μ','field energy'],
+    ['Ohm + power','V = IR, P = VI = I²R','DC'],
+    ['Series / parallel','R = ΣRᵢ · 1/R = Σ1/Rᵢ','resistors'],
+    ['Kirchhoff','Σ loop voltages = 0, Σ node currents = 0','KVL / KCL'],
+    ['RC transient','Vc = Vf + (V₀−Vf)e⁻ᵗ/ᵞ','τ = RC'],
+    ['RL transient','I = I∞ + (I₀−I∞)e⁻ᵗ/ᵞ','τ = L/R'],
+    ['Lorentz force','F = q(E + v×B)','F ⊥ v'],
+    ['Cyclotron','r = mv⊥/qB, f = qB/2πm','independent of v'],
+    ['Wire field','B = μ₀I/2πr','right-hand rule'],
+    ['Solenoid','B = μ₀nI, L = μ₀n²Aℓ','long solenoid'],
+    ['Force on wire','F = BIL sinθ','motor principle'],
+    ['Torque','τ = mB sinθ, m = NIA','meter movement'],
+    ['Faraday','ℰ = −N dΦ/dt','flux rule'],
+    ['RLC impedance','Z = √(R²+(ωL−1/ωC)²)','φ = atan(X/R)'],
+    ['Resonance','f₀ = 1/2π√LC, Q = ω₀L/R','series RLC'],
+    ['Transformer','V₂/V₁ = N₂/N₁','ideal'],
+    ['AC power','P = VI cosφ, S = VI','φ = power angle'],
+    ['Skin depth','δ = √(2ρ/ωμ)','good conductors'],
+    ['Wave speed','v = 1/√(με)','c in vacuum'],
+    ['Impedance of space','Z₀ = √(μ₀/ε₀) ≈ 377 Ω','E/H ratio'],
+    ['Poynting','S = E×H, I = E²/Z','energy flux'],
+    ['Photon','E = hf, p = h/λ','quantum'],
+    ['Radiation pressure','p = I/c (2I/c reflected)','sails'],
+    ['Path loss','FSPL = 20log d + 20log f + 32.44','dB, km & MHz'],
+    ['Hall voltage','V_H = IB/nqt','carrier sensing'],
+    ['Drift velocity','v_d = I/nqA','~mm/s in metals']
+  ];
+  byId('eqTable').innerHTML = EQS.map(([a,b,c]) =>
+    `<tr><td class="l">${a}</td><td class="eq">${b}</td><td class="l">${c}</td></tr>`).join('');
+})();
+
+/* ============================================================
+   Reset, print, toast
+   ============================================================ */
+let toastTimer;
+function toast(msg){
+  const t = byId('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+byId('printBtn').addEventListener('click', () => window.print());
+
+const defaults = new Map();
+document.querySelectorAll('main input, main select').forEach(el => defaults.set(el, el.value));
+byId('resetBtn').addEventListener('click', () => {
+  defaults.forEach((v,el) => { el.value = v; });
+  RUNNERS.forEach(fn => fn());
+  Lab.resetAll();
+  go('home');
+  toast('Defaults restored');
+});
+
+/* initial fill of every calculator output */
+RUNNERS.forEach(fn => fn());
+</script>
+</body>
+</html>
