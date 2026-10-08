@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   AZNUR EM — stone + amber light theme, dark lab stage
+   AZNUR EM - stone + amber light theme, dark lab stage
    ============================================================ */
 :root{
   --bg:#fafafa; --surface:#fff; --surface-soft:#f7f5f2;
@@ -358,7 +358,7 @@ tr:hover td{background:#fffbeb}
     </div>
     <div class="card span-12">
       <h2>Scope</h2>
-      <div class="notice">Calculators use standard SI relationships and common engineering approximations. Material properties, losses and device parameters are user inputs. Results are intended for education, preliminary design and quick checking — not certified metrology.</div>
+      <div class="notice">Calculators use standard SI relationships and common engineering approximations. Material properties, losses and device parameters are user inputs. Results are intended for education, preliminary design and quick checking - not certified metrology.</div>
     </div>
   </div>
 </section>
@@ -376,11 +376,11 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Charge q₁</label><input id="coq1" type="number" step="any" value="2"><span class="unit">μC</span></div>
         <div class="field"><label>Charge q₂</label><input id="coq2" type="number" step="any" value="-3"><span class="unit">μC</span></div>
         <div class="field"><label>Distance r</label><input id="cor" type="number" step="any" value="0.2"><span class="unit">m</span></div>
-        <div class="field"><label>Medium εr</label><input id="coepsr" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>Medium εr</label><input id="coepsr" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="coOut"></div>
-      <div class="formula"><b>F = kₑ|q₁q₂|/(εᵣr²)</b> — opposite signs attract, like signs repel.</div>
+      <div class="formula"><b>F = kₑ|q₁q₂|/(εᵣr²)</b> - opposite signs attract, like signs repel.</div>
     </div>
 
     <div class="card span-6" data-calc="ef" id="tool-electricField">
@@ -388,7 +388,7 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field"><label>Charge q</label><input id="efq" type="number" step="any" value="5"><span class="unit">μC</span></div>
         <div class="field"><label>Distance r</label><input id="efr" type="number" step="any" value="0.1"><span class="unit">m</span></div>
-        <div class="field"><label>εr</label><input id="efeps" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>εr</label><input id="efeps" type="number" step="any" value="1"><span class="unit">-</span></div>
         <div class="field"><label>Probe charge</label><input id="efqp" type="number" step="any" value="2"><span class="unit">nC</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
@@ -401,7 +401,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Source q</label><input id="pvq" type="number" step="any" value="3"><span class="unit">μC</span></div>
         <div class="field"><label>Distance r</label><input id="pvr" type="number" step="any" value="0.25"><span class="unit">m</span></div>
         <div class="field"><label>Test charge</label><input id="pvqp" type="number" step="any" value="2"><span class="unit">μC</span></div>
-        <div class="field"><label>εr</label><input id="pveps" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>εr</label><input id="pveps" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="pvOut"></div>
@@ -419,7 +419,7 @@ tr:hover td{background:#fffbeb}
           <option value="series">Series combination</option>
           <option value="parallelC">Parallel combination</option>
         </select></div>
-        <div class="field"><label>εr</label><input id="capeps" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>εr</label><input id="capeps" type="number" step="any" value="1"><span class="unit">-</span></div>
         <div class="field"><label>Voltage V</label><input id="capV" type="number" step="any" value="100"><span class="unit">V</span></div>
         <div class="field"><label>Area A</label><input id="capA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
         <div class="field"><label>Gap d / r₁</label><input id="capd" type="number" step="any" value="0.001"><span class="unit">m</span></div>
@@ -466,7 +466,7 @@ tr:hover td{background:#fffbeb}
     <div class="card span-3" data-calc="ed" id="tool-energydensity">
       <h2>Energy Density</h2>
       <div class="fields">
-        <div class="field full"><label>εr</label><input id="edEps" type="number" step="any" value="2.2"><span class="unit">—</span></div>
+        <div class="field full"><label>εr</label><input id="edEps" type="number" step="any" value="2.2"><span class="unit">-</span></div>
         <div class="field full"><label>Field E</label><input id="edE" type="number" step="any" value="1e6"><span class="unit">V/m</span></div>
         <div class="field full"><label>Plate area</label><input id="edA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
         <div class="field full"><label>Gap</label><input id="edD" type="number" step="any" value="0.001"><span class="unit">m</span></div>
@@ -576,7 +576,7 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field"><label>Voltage</label><input id="ecV" type="number" step="any" value="230"><span class="unit">V</span></div>
         <div class="field"><label>Current</label><input id="ecI" type="number" step="any" value="5"><span class="unit">A</span></div>
-        <div class="field"><label>Power factor</label><input id="ecPF" type="number" step="any" value="0.9"><span class="unit">—</span></div>
+        <div class="field"><label>Power factor</label><input id="ecPF" type="number" step="any" value="0.9"><span class="unit">-</span></div>
         <div class="field"><label>Hours</label><input id="ecH" type="number" step="any" value="8"><span class="unit">h</span></div>
         <div class="field"><label>Tariff</label><input id="ecTar" type="number" step="any" value="12"><span class="unit">Tk/kWh</span></div>
         <div class="field no-unit"><label>Phase</label><select id="ecPhase">
@@ -606,7 +606,7 @@ tr:hover td{background:#fffbeb}
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="mfOut"></div>
-      <div class="formula">Magnetic component: <b>F = qvB sinθ</b> — force ⊥ both v and B.</div>
+      <div class="formula">Magnetic component: <b>F = qvB sinθ</b> - force ⊥ both v and B.</div>
     </div>
 
     <div class="card span-6" data-calc="cp" id="tool-particle">
@@ -628,11 +628,11 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field"><label>Current I</label><input id="lwI" type="number" step="any" value="10"><span class="unit">A</span></div>
         <div class="field"><label>Distance r</label><input id="lwR" type="number" step="any" value="0.1"><span class="unit">m</span></div>
-        <div class="field full"><label>μr</label><input id="lwMur" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field full"><label>μr</label><input id="lwMur" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="lwOut"></div>
-      <div class="formula"><b>B = μI/2πr</b> — direction by the right-hand rule.</div>
+      <div class="formula"><b>B = μI/2πr</b> - direction by the right-hand rule.</div>
     </div>
 
     <div class="card span-6" data-calc="sol" id="tool-solenoid">
@@ -641,7 +641,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Turns N</label><input id="solN" type="number" step="any" value="1000"><span class="unit">turns</span></div>
         <div class="field"><label>Length L</label><input id="solL" type="number" step="any" value="0.2"><span class="unit">m</span></div>
         <div class="field"><label>Current I</label><input id="solI" type="number" step="any" value="2"><span class="unit">A</span></div>
-        <div class="field"><label>Core μr</label><input id="solMur" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>Core μr</label><input id="solMur" type="number" step="any" value="1"><span class="unit">-</span></div>
         <div class="field full"><label>Area A</label><input id="solA" type="number" step="any" value="0.0005"><span class="unit">m²</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
@@ -697,7 +697,7 @@ tr:hover td{background:#fffbeb}
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="inOut"></div>
-      <div class="formula"><b>Φ = BA cosθ</b> — average emf magnitude = N|ΔΦ/Δt|</div>
+      <div class="formula"><b>Φ = BA cosθ</b> - average emf magnitude = N|ΔΦ/Δt|</div>
     </div>
 
     <div class="card span-6" data-calc="rlc" id="tool-rlc">
@@ -736,7 +736,7 @@ tr:hover td{background:#fffbeb}
         </select></div>
         <div class="field"><label>Vrms</label><input id="pfV" type="number" step="any" value="230"><span class="unit">V</span></div>
         <div class="field"><label>Irms</label><input id="pfI" type="number" step="any" value="10"><span class="unit">A</span></div>
-        <div class="field"><label>PF</label><input id="pfPF" type="number" step="any" value="0.85"><span class="unit">—</span></div>
+        <div class="field"><label>PF</label><input id="pfPF" type="number" step="any" value="0.85"><span class="unit">-</span></div>
         <div class="field full"><label>Hours</label><input id="pfHr" type="number" step="any" value="1"><span class="unit">h</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
@@ -762,7 +762,7 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field"><label>Frequency</label><input id="skinF" type="number" step="any" value="1000000"><span class="unit">Hz</span></div>
         <div class="field"><label>Resistivity ρ</label><input id="skinRho" type="number" step="any" value="1.72e-8"><span class="unit">Ω·m</span></div>
-        <div class="field full"><label>μr</label><input id="skinMur" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field full"><label>μr</label><input id="skinMur" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="skinOut"></div>
@@ -782,13 +782,13 @@ tr:hover td{background:#fffbeb}
       <h2>EM Wave Calculator</h2>
       <div class="fields">
         <div class="field"><label>Frequency f</label><input id="ewF" type="number" step="any" value="1e9"><span class="unit">Hz</span></div>
-        <div class="field"><label>εr</label><input id="ewEr" type="number" step="any" value="1"><span class="unit">—</span></div>
-        <div class="field"><label>μr</label><input id="ewMr" type="number" step="any" value="1"><span class="unit">—</span></div>
+        <div class="field"><label>εr</label><input id="ewEr" type="number" step="any" value="1"><span class="unit">-</span></div>
+        <div class="field"><label>μr</label><input id="ewMr" type="number" step="any" value="1"><span class="unit">-</span></div>
         <div class="field full"><label>E amplitude (peak)</label><input id="ewE" type="number" step="any" value="10"><span class="unit">V/m</span></div>
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="ewOut"></div>
-      <div class="formula"><b>v = 1/√(με)</b>, λ = v/f, Z = √(μ/ε) — free space Z₀ ≈ 376.73 Ω</div>
+      <div class="formula"><b>v = 1/√(με)</b>, λ = v/f, Z = √(μ/ε) - free space Z₀ ≈ 376.73 Ω</div>
     </div>
 
     <div class="card span-6" data-calc="po" id="tool-poynting">
@@ -801,7 +801,7 @@ tr:hover td{background:#fffbeb}
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="poOut"></div>
-      <div class="formula">Plane wave: <b>I = E_rms²/Z</b> — power crossing A = IA</div>
+      <div class="formula">Plane wave: <b>I = E_rms²/Z</b> - power crossing A = IA</div>
     </div>
 
     <div class="card span-6" data-calc="ph" id="tool-photon">
@@ -883,7 +883,7 @@ tr:hover td{background:#fffbeb}
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="haOut"></div>
-      <div class="formula"><b>V_H = IB/(nqt)</b> — sign identifies carrier type</div>
+      <div class="formula"><b>V_H = IB/(nqt)</b> - sign identifies carrier type</div>
     </div>
 
     <div class="card span-6" data-calc="dr" id="tool-drift">
@@ -895,7 +895,7 @@ tr:hover td{background:#fffbeb}
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="drOut"></div>
-      <div class="formula"><b>v_d = I/(nqA)</b> — copper default (n ≈ 8.5×10²² cm⁻³)</div>
+      <div class="formula"><b>v_d = I/(nqA)</b> - copper default (n ≈ 8.5×10²² cm⁻³)</div>
     </div>
 
     <div class="card span-6" data-calc="bg" id="tool-bandgap">
@@ -905,7 +905,7 @@ tr:hover td{background:#fffbeb}
       </div>
       <div class="actions"><button class="btn primary">Calculate</button></div>
       <div class="results" id="bgOut"></div>
-      <div class="formula"><b>λ_max = 1240/E_g (nm)</b> — Si default (1.12 eV)</div>
+      <div class="formula"><b>λ_max = 1240/E_g (nm)</b> - Si default (1.12 eV)</div>
     </div>
 
     <div class="card span-6">
@@ -931,10 +931,10 @@ tr:hover td{background:#fffbeb}
         <thead><tr><th style="text-align:left">Material</th><th>εr</th><th style="text-align:left">Note</th></tr></thead>
         <tbody>
           <tr><td class="l">Vacuum</td><td>1.0000</td><td class="l">reference</td></tr>
-          <tr><td class="l">Air</td><td>1.0006</td><td class="l">—</td></tr>
+          <tr><td class="l">Air</td><td>1.0006</td><td class="l">-</td></tr>
           <tr><td class="l">Teflon</td><td>2.1</td><td class="l">low loss, RF</td></tr>
           <tr><td class="l">Polyethylene</td><td>2.25</td><td class="l">cable insulation</td></tr>
-          <tr><td class="l">Polystyrene</td><td>2.6</td><td class="l">—</td></tr>
+          <tr><td class="l">Polystyrene</td><td>2.6</td><td class="l">-</td></tr>
           <tr><td class="l">Paper</td><td>3.7</td><td class="l">impregnated</td></tr>
           <tr><td class="l">Fused quartz</td><td>3.8</td><td class="l">very stable</td></tr>
           <tr><td class="l">Glass (soda-lime)</td><td>7</td><td class="l">varies 4–10</td></tr>
@@ -951,7 +951,7 @@ tr:hover td{background:#fffbeb}
   <div class="hero">
     <div class="hero-text">
       <h1>Visual Lab</h1>
-      <p>Eight live electromagnetism experiments on one shared engine. Every slider writes straight into the simulation state and the canvas re-renders immediately — even while paused.</p>
+      <p>Eight live electromagnetism experiments on one shared engine. Every slider writes straight into the simulation state and the canvas re-renders immediately - even while paused.</p>
     </div>
     <div class="tag">CANVAS · LIVE · ZERO DEPS</div>
   </div>
@@ -978,7 +978,7 @@ tr:hover td{background:#fffbeb}
     <div class="lab-controls" id="labControls"></div>
   </div>
 
-  <div class="note" style="margin-top:12px">Field-line, particle and wire experiments use model units chosen for visibility — the geometry follows the real vector laws (right-hand rules, E ∝ 1/r², B ∝ 1/r). Wave, resonance, transient and skin-depth plots are computed from the actual physics. Space toggles play/pause.</div>
+  <div class="note" style="margin-top:12px">Field-line, particle and wire experiments use model units chosen for visibility - the geometry follows the real vector laws (right-hand rules, E ∝ 1/r², B ∝ 1/r). Wave, resonance, transient and skin-depth plots are computed from the actual physics. Space toggles play/pause.</div>
 </section>
 
 <!-- ============================ REFERENCE ============================ -->
@@ -1035,7 +1035,7 @@ const KE = 8.9875517923e9, EPS0 = 8.8541878128e-12, MU0 = 4*Math.PI*1e-7,
 const SUP = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
 
 function fmt(x, sig=4){
-  if(x===null || x===undefined || !isFinite(x)) return '—';
+  if(x===null || x===undefined || !isFinite(x)) return '-';
   if(x===0) return '0';
   const a = Math.abs(x);
   if(a>=1e6 || a<1e-3){
@@ -1057,7 +1057,7 @@ function render(out, rows){
 }
 
 /* ============================================================
-   Calculators — every card recalculates live on input
+   Calculators - every card recalculates live on input
    ============================================================ */
 const CALCS = {};
 
@@ -1495,7 +1495,7 @@ CALCS.bg = {i:['bgEg'], out:'bgOut', fn(n){
   if(!ok(n[0]) || n[0]<=0) return [];
   const lam = 1239.84/n[0];
   return [st('Cutoff wavelength λ_max', fmt(lam),'nm','hot'),
-          st('Band', lam>700 ? 'infrared — sub-gap light passes' : lam>400 ? 'visible light absorbed' : 'ultraviolet needed'),
+          st('Band', lam>700 ? 'infrared - sub-gap light passes' : lam>400 ? 'visible light absorbed' : 'ultraviolet needed'),
           st('Photon at cutoff', fmt(n[0]),'eV')];
 }};
 
@@ -1614,7 +1614,7 @@ function openTool(o){
 document.querySelectorAll('[data-pane]').forEach(b => b.addEventListener('click', () => go(b.dataset.pane)));
 
 /* ============================================================
-   VISUAL LAB — one state object, one render loop, live controls
+   VISUAL LAB - one state object, one render loop, live controls
    ============================================================ */
 const Lab = (() => {
   const cv = byId('labCanvas'), ctx = cv.getContext('2d');
@@ -1735,7 +1735,7 @@ const Lab = (() => {
         const Vm = 9000*(p.q1+p.q2)/r;
         const like = p.q1*p.q2 > 0;
         return [['E midpoint', Em.toFixed(1)+' u'],['V midpoint', Vm.toFixed(0)+' u'],
-                ['charges', like ? 'like — repel' : 'opposite — attract']];
+                ['charges', like ? 'like - repel' : 'opposite - attract']];
       }
     },
 
@@ -1862,7 +1862,7 @@ const Lab = (() => {
     /* 4 ─ RLC resonance curve ----------------------------------- */
     rlc:{
       label:'RLC resonance',
-      hint:'Normalised current amplitude and phase of a series RLC as frequency sweeps (cursor follows simulation time). Real L, R, C values — the plot window auto-fits the resonance bandwidth.',
+      hint:'Normalised current amplitude and phase of a series RLC as frequency sweeps (cursor follows simulation time). Real L, R, C values - the plot window auto-fits the resonance bandwidth.',
       params:[
         {id:'R',label:'Resistance R',min:1,   max:100, step:1,   val:10,  unit:'Ω'},
         {id:'L',label:'Inductance L',min:1,   max:100, step:.5,  val:10,  unit:'mH'},
@@ -2055,7 +2055,7 @@ const Lab = (() => {
     /* 7 ─ EM plane wave ----------------------------------------- */
     emwave:{
       label:'EM plane wave',
-      hint:'A travelling plane wave: E oscillates vertically (amber), B is orthogonal — shown as ⊙ (out of page) and ⊗ (into page) symbols whose size follows |B|. Both move together at c; E/B = c always.',
+      hint:'A travelling plane wave: E oscillates vertically (amber), B is orthogonal - shown as ⊙ (out of page) and ⊗ (into page) symbols whose size follows |B|. Both move together at c; E/B = c always.',
       params:[
         {id:'A', label:'Amplitude',  min:.3, max:1.2, step:.05, val:.8, unit:''},
         {id:'N', label:'Cycles shown',min:1.5, max:8,  step:.5,  val:3,  unit:''},
@@ -2114,7 +2114,7 @@ const Lab = (() => {
     /* 8 ─ skin depth -------------------------------------------- */
     skin:{
       label:'Skin depth',
-      hint:'Current density in a 4 mm conductor slab: J decays as e^(−x/δ) from both surfaces (amber shading, model curve overlay, δ markers). The drifting dots fade as they enter the interior — current really does flow only in the skin.',
+      hint:'Current density in a 4 mm conductor slab: J decays as e^(−x/δ) from both surfaces (amber shading, model curve overlay, δ markers). The drifting dots fade as they enter the interior - current really does flow only in the skin.',
       params:[
         {id:'lf', label:'Frequency', min:3, max:9.3, step:.05, val:6, unit:'',
          disp:fHz},
@@ -2156,7 +2156,7 @@ const Lab = (() => {
           [delta, W-delta].forEach(xm => ln(X(xm), top-6, X(xm), bot, COL.soft, 1, [3,5]));
           txt('δ', X(delta)-4, top-10, COL.cream);
         } else {
-          txt('δ > slab — fully penetrated', x0+10, top-10, COL.soft);
+          txt('δ > slab - fully penetrated', x0+10, top-10, COL.soft);
         }
         txt('conductor slab, w = 4 mm', x0+Wpx/2-64, bot+16, COL.soft);
         // drifting charge dots, faded by local J
