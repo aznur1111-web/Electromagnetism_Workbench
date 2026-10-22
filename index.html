@@ -1,309 +1,540 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fafafa">
-<meta name="referrer" content="no-referrer">
-<meta name="description" content="Aznur Electromagnetism engineering calculator and visual lab. Offline, single-file, fast. Your data never leaves your device.">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Aznur Electromagnetism engineering calculator and visual lab. Offline, single-file, fast."/>
+<meta name="referrer" content="no-referrer"/>
+<meta name="color-scheme" content="light dark"/>
 <title>AZNUR EM | Electromagnetism Workbench</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   AZNUR EM - stone + amber light theme, dark lab stage
-   ============================================================ */
 :root{
-  --bg:#fafafa; --surface:#fff; --surface-soft:#f7f5f2;
-  --border:#e7e5e4; --text:#1c1917; --muted:#57534e; --faint:#78716c;
-  --accent:#f59e0b; --accent-h:#d97706; --ok:#10b981; --err:#ef4444;
-  --shadow:0 1px 2px rgba(0,0,0,.05);
-  --r:6px; --rl:10px;
-  --mono:"IBM Plex Mono",Consolas,"Liberation Mono",monospace;
-  --sans:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  --lbg:#191512; --lbg2:#211d18; --lline:#2a2620; --ltext:#f5f5f4; --lmuted:#a8a29e; --ltrace:#fbbf24;
+  color-scheme: light dark;
+  --bg:#fdfcfc; --fg:#201d1d; --dim:#646262; --faint:#9a9898;
+  --line:#dcd9d9; --accent:#b45309; --accent-h:#92400e; --accent-fg:#fdfcfc;
+  --active:#f4f0ef; --surface:#faf8f7; --surface-soft:#f4f0ef;
+  --ok:#10b981; --err:#b91c1c;
+  --font:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --mono:var(--font);
+  --radius:4px; --maxw:76rem; --pad:1rem;
+  --lbg:#141110; --lbg2:#1a1613; --lline:#2a2620;
+  --ltext:#f5f5f4; --lmuted:#a8a29e; --ltrace:#f59e0b;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
-button,input,select{font:inherit}
-button{cursor:pointer}
-:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+@media (min-width:640px){ :root{ --pad:1.5rem; } }
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#161313; --fg:#f1eeee; --dim:#9a9898; --faint:#646262;
+  --line:#302c2c; --accent:#f59e0b; --accent-h:#d97706; --accent-fg:#161313;
+  --active:#211d1d; --surface:#1c1818; --surface-soft:#211d1d;
+  --ok:#10b981; --err:#f87171;
+  --lbg:#0f0d0b; --lbg2:#151210; --lline:#2a2620;
+  --ltext:#f5f5f4; --lmuted:#a8a29e; --ltrace:#fbbf24;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#161313; --fg:#f1eeee; --dim:#9a9898; --faint:#646262;
+    --line:#302c2c; --accent:#f59e0b; --accent-h:#d97706; --accent-fg:#161313;
+    --active:#211d1d; --surface:#1c1818; --surface-soft:#211d1d;
+    --ok:#10b981; --err:#f87171;
+    --lbg:#0f0d0b; --lbg2:#151210; --lline:#2a2620;
+    --ltext:#f5f5f4; --lmuted:#a8a29e; --ltrace:#fbbf24;
+  }
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  font:14px/1.6 var(--font);
+  background:var(--bg); color:var(--fg);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+[hidden],.hidden{ display:none !important; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:2px; }
+button{ font:inherit; color:inherit; cursor:pointer; border:0; background:transparent; }
+a{ color:inherit; text-decoration:none; }
+code{ font-family:inherit; font-size:.95em; }
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ transition:none !important; animation:none !important; }
+  html{ scroll-behavior:auto; }
+}
 
-/* ---------- Header ---------- */
-header{position:sticky;top:0;z-index:30;background:var(--surface);
-  border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;
-  padding:0 20px;gap:20px}
-.brand{display:flex;align-items:center;gap:10px;min-width:212px}
-.brand-mark{width:32px;height:32px;border:1px solid var(--accent);border-radius:7px;
-  display:grid;place-items:center;color:var(--accent-h);font:700 15px var(--mono);background:#fffbeb}
-.brand-name{font-weight:700;letter-spacing:1.4px;font-size:14px}
-.brand-sub{display:block;font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:1px}
-.tabs{display:flex;gap:4px;overflow-x:auto;flex:1;height:100%;align-items:flex-end;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{border:0;background:transparent;padding:0 11px;height:64px;color:var(--muted);
-  font-size:12px;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s}
-.tab:hover{color:var(--text)}
-.tab.on{color:var(--accent-h);border-color:var(--accent)}
-.header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-.mini{height:32px;padding:0 12px;border:1px solid var(--border);background:var(--surface);
-  border-radius:var(--r);color:var(--muted);font-size:11px;font-weight:600;transition:all .2s}
-.mini:hover{border-color:var(--accent);background:#fffbeb;color:var(--text)}
-.mini.primary{background:var(--text);border-color:var(--text);color:#fff}
-.mini.primary:hover{background:#333;border-color:#333}
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 var(--pad); }
+
+/* ---------- Topbar ---------- */
+.topbar{ border-bottom:1px solid var(--line); background:var(--surface); }
+.topbar-inner{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; padding:.7rem 0; min-height:52px; flex-wrap:wrap;
+}
+.brand{ font-size:15px; font-weight:600; letter-spacing:-.01em; }
+.brand .slash{ color:var(--faint); margin:0 .1em; }
+.topbar-tools{ display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+.eyebrow{
+  font-size:10px; line-height:1.4; font-weight:500;
+  text-transform:uppercase; letter-spacing:.12em;
+  color:var(--accent); margin:0 0 .5rem;
+}
+.topbar-tools .eyebrow{ margin:0; }
+
+/* ---------- Hero ---------- */
+.hero{ padding:1.75rem 0 1rem; }
+.hero h1{
+  font-size:clamp(1.35rem, 3.2vw, 2rem);
+  font-weight:600; letter-spacing:-.02em; line-height:1.15;
+  margin:.15rem 0 .5rem;
+}
+.hero .lede{ max-width:72ch; color:var(--dim); font-size:13.5px; margin:0; }
+
+/* ---------- Mode tabs ---------- */
+.mode-tabs{
+  display:flex; gap:.25rem; margin:0 0 1rem;
+  border-bottom:1px solid var(--line);
+}
+.tab{
+  background:transparent; border:0;
+  padding:.5rem .85rem; min-height:40px;
+  color:var(--dim); font-weight:500; letter-spacing:.01em;
+  font-size:12.5px; cursor:pointer;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  transition:color .15s, border-color .15s;
+}
+.tab:hover{ color:var(--fg); }
+.tab[aria-selected="true"]{ color:var(--fg); border-bottom-color:var(--accent); }
 
 /* ---------- Layout ---------- */
-#layout{display:flex;min-height:calc(100vh - 64px)}
-aside{width:250px;flex:0 0 250px;background:var(--bg);border-right:1px solid var(--border);
-  position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
-.side-head{padding:16px 16px 10px;color:var(--muted);font-size:10px;letter-spacing:1.4px;
-  text-transform:uppercase;font-weight:600}
-.side-group{border-top:1px solid var(--border)}
-.side-btn{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;
-  border:0;background:transparent;padding:10px 16px;color:var(--muted);text-align:left;
-  font-size:12px;transition:all .2s}
-.side-btn:hover{background:var(--surface);color:var(--text)}
-.side-btn.on{color:var(--accent-h);background:var(--surface);font-weight:600}
-.side-btn b{font:500 9px var(--mono);color:var(--muted);background:var(--surface-soft);
-  border:1px solid var(--border);padding:2px 6px;border-radius:4px}
-main{min-width:0;flex:1;padding:24px 24px 40px}
-.page{max-width:1480px;margin:0 auto}
+.layout{
+  display:grid;
+  grid-template-columns:280px minmax(0,1fr);
+  gap:1rem;
+  align-items:start;
+}
+body.ref-mode .side{ display:none; }
+body.ref-mode .layout{ grid-template-columns:1fr; }
 
-/* ---------- Hero / panes ---------- */
-.hero{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-.hero-text{flex:1;min-width:200px}
-.hero h1{font-size:1.7rem;font-weight:700;letter-spacing:-.4px;margin:0}
-.hero p{color:var(--muted);font-size:.9rem;margin-top:4px;max-width:760px}
-.hero .tag{border:1px solid var(--border);background:var(--surface);border-radius:999px;
-  padding:6px 12px;font:600 10px var(--mono);color:var(--accent-h);white-space:nowrap}
-.pane{display:none}
-.pane.on{display:block;animation:fade .18s ease-out}
-@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.side{
+  position:sticky; top:14px;
+  height:max-content;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:1rem 1rem 1rem;
+}
+.side .eyebrow{ margin-bottom:.65rem; }
 
-/* ---------- Grid / cards ---------- */
-.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
-.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
-.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);
-  box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:13px}
-.card h2,.card h3{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent-h);
-  margin:0;font-weight:700}
-.card h2 small,.card h3 small{color:var(--muted);font-size:10px;text-transform:none;
-  letter-spacing:0;font-weight:400;margin-left:6px}
-.card.accent{border-top:2px solid var(--accent)}
-.desc{font-size:11px;color:var(--muted);line-height:1.5}
-@keyframes cardflash{0%{box-shadow:0 0 0 0 rgba(245,158,11,.55)}
-  70%{box-shadow:0 0 0 7px rgba(245,158,11,0)}100%{box-shadow:var(--shadow)}}
-.card.flash{animation:cardflash 1.2s ease-out}
+/* ---------- Search ---------- */
+.search-wrap{
+  display:flex; align-items:center; gap:.35rem;
+  padding:.25rem .5rem; min-height:34px;
+  background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--radius);
+}
+.search-wrap .prompt{ color:var(--accent); font-weight:600; font-size:13px; }
+.search-wrap input{
+  flex:1; min-width:0; min-height:26px; padding:0;
+  background:transparent; border:0; border-radius:0;
+  font:inherit; font-size:12.5px; color:var(--fg);
+}
+.search-wrap input:focus-visible{ outline:none; }
+.search-wrap:focus-within{ border-color:var(--accent); outline:1px solid var(--accent); outline-offset:0; }
+.search-wrap::placeholder{ color:var(--faint); }
 
-/* ---------- Forms ---------- */
-.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.field{display:grid;grid-template-columns:118px 1fr 56px;align-items:center;gap:8px}
-.field.no-unit{grid-template-columns:118px 1fr}
-.field.full{grid-column:1 / -1}
-.field label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.field input,.field select{height:32px;width:100%;border:1px solid var(--border);background:var(--surface);
-  border-radius:var(--r);padding:0 10px;color:var(--text);font-family:var(--mono);font-size:12px;text-align:right}
-.field select{text-align:left}
-.field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(245,158,11,.12)}
-.unit{font:11px var(--mono);color:var(--muted)}
+/* ---------- Category list ---------- */
+.cat-list{
+  max-height:64vh; overflow:auto;
+  display:flex; flex-direction:column; gap:2px;
+  margin-top:.65rem;
+}
+.cat{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:.5rem; width:100%; padding:.5rem .6rem; min-height:36px;
+  background:transparent; color:var(--fg);
+  border:1px solid transparent; border-radius:4px;
+  font:inherit; font-size:12.5px; text-align:left;
+  cursor:pointer; transition:border-color .15s, background .15s;
+}
+.cat:hover{ border-color:var(--line); background:var(--active); }
+.cat.active{ background:var(--active); border-color:var(--line); font-weight:600; }
+.cat small{ color:var(--faint); font-size:10px; font-variant-numeric:tabular-nums; }
 
-/* ---------- Buttons / chips ---------- */
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{height:32px;border:1px solid var(--border);background:var(--surface);border-radius:var(--r);
-  padding:0 14px;color:var(--muted);font-size:11px;font-weight:600;transition:all .2s}
-.btn:hover{border-color:var(--accent);background:#fffbeb;color:var(--text)}
-.btn.primary{background:var(--text);color:#fff;border-color:var(--text)}
-.btn.primary:hover{background:#333;border-color:#333}
-.quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.chip{border:1px solid var(--border);background:var(--surface);border-radius:999px;
-  padding:6px 12px;font:500 11px var(--mono);color:var(--muted);transition:all .2s}
-.chip:hover{border-color:var(--accent);color:var(--accent-h);background:#fffbeb}
+/* ---------- Panels ---------- */
+.pane{ display:none; }
+.pane.active{ display:block; }
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:1rem 1.1rem;
+  margin-bottom:.85rem;
+}
+.card h2{
+  font-size:1rem; font-weight:600; letter-spacing:-.01em;
+  margin:0 0 .3rem; line-height:1.25;
+}
+.card h2 small{
+  color:var(--dim); font-size:10px;
+  text-transform:none; letter-spacing:0;
+  font-weight:400; margin-left:6px;
+}
+.card h3{ font-size:.95rem; font-weight:600; margin:0 0 .2rem; }
+.card.accent{ border-top:2px solid var(--accent); }
+
+/* ---------- 12-col grid inside panes ---------- */
+.grid{
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(12, minmax(0, 1fr));
+}
+.span-12{ grid-column:span 12; }
+.span-8{ grid-column:span 8; }
+.span-7{ grid-column:span 7; }
+.span-6{ grid-column:span 6; }
+.span-5{ grid-column:span 5; }
+.span-4{ grid-column:span 4; }
+.span-3{ grid-column:span 3; }
+
+/* ---------- Fields ---------- */
+.fields{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:.55rem .9rem;
+}
+.field{
+  display:grid;
+  grid-template-columns:118px 1fr auto;
+  align-items:center;
+  gap:.5rem;
+}
+.field.no-unit{ grid-template-columns:118px 1fr; }
+.field.full{ grid-column:1 / -1; }
+.field label{
+  font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--dim); font-weight:600;
+}
+.field input, .field select{
+  height:32px; width:100%;
+  border:1px solid var(--line); background:var(--surface);
+  border-radius:var(--radius); padding:0 .55rem;
+  color:var(--fg); font-family:var(--mono); font-size:12px;
+  text-align:right;
+}
+.field select{ text-align:left; }
+.field input:hover, .field select:hover{ border-color:var(--accent); }
+.field input:focus-visible, .field select:focus-visible{ outline-offset:1px; }
+.field .unit{ font:11px var(--mono); color:var(--faint); }
+
+/* ---------- Actions ---------- */
+.actions{ display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.75rem; }
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
+  min-height:32px; padding:.3rem .85rem;
+  font:inherit; font-size:12px; font-weight:600;
+  color:var(--fg); background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--radius);
+  transition:border-color .15s, background .15s;
+}
+.btn:hover{ border-color:var(--accent); }
+.btn.accent{ background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+.btn.accent:hover{ filter:brightness(1.05); }
+.btn.secondary{ background:var(--surface); }
+.btn.sm{ min-height:28px; padding:.2rem .65rem; font-size:11.5px; }
+.btn-row{ display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+
+/* ---------- Quick chips ---------- */
+.quick{ display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:1rem; }
+.chip{
+  border:1px solid var(--line); background:var(--surface);
+  border-radius:999px; padding:.3rem .75rem;
+  font:500 11px var(--mono); color:var(--dim);
+  cursor:pointer; transition:border-color .15s, color .15s, background .15s;
+}
+.chip:hover{ border-color:var(--accent); color:var(--accent); background:var(--active); }
+
+/* ---------- Search (dashboard tool search) ---------- */
+.search{ display:flex; gap:.4rem; }
+.search input{
+  flex:1; height:34px; border:1px solid var(--line); border-radius:var(--radius);
+  background:var(--surface); padding:0 .6rem;
+  font:12.5px var(--mono); color:var(--fg);
+}
+.search input:hover{ border-color:var(--accent); }
+.list{ display:grid; gap:.35rem; max-height:340px; overflow-y:auto; margin-top:.65rem; }
+.list-btn{
+  display:flex; justify-content:space-between; align-items:center; gap:.5rem;
+  width:100%; padding:.5rem .65rem;
+  border:1px solid var(--line); background:var(--surface); border-radius:var(--radius);
+  color:var(--dim); font-size:11.5px; text-align:left;
+  transition:border-color .15s, background .15s, color .15s;
+}
+.list-btn:hover{ border-color:var(--accent); color:var(--fg); background:var(--active); }
+.list-btn strong{ color:var(--fg); font-weight:600; }
+.list-btn span{ font:9px var(--mono); color:var(--faint);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 /* ---------- Results ---------- */
-.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.stat{background:var(--surface-soft);border:1px solid var(--border);border-radius:var(--r);
-  padding:10px 12px;min-width:0}
-.stat .k{font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;font-weight:600}
-.stat .v{font:700 15px var(--mono);color:var(--text);margin:4px 0 0;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.stat .u{font-size:10px;color:var(--muted);font-weight:400}
-.stat.hot .v{color:var(--accent-h)}
-.stat.good .v{color:var(--ok)}
-.stat.bad .v{color:var(--err)}
-.stat.wide{grid-column:1 / -1}
-.stat.wide .v{font-size:11.5px;white-space:normal;overflow:visible;font-weight:600}
-.formula{font:11px/1.6 var(--mono);color:var(--muted);background:#fffbeb;
-  border-left:2px solid var(--accent);padding:10px 12px;border-radius:0 var(--r) var(--r) 0}
-.formula b{color:var(--text)}
-.note{font-size:11px;color:var(--muted);line-height:1.6}
-.notice{padding:10px;border:1px dashed #d6d3d1;background:#fafafa;border-radius:var(--r);
-  font-size:11px;color:var(--muted);line-height:1.6}
+.results{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(min(100%,170px), 1fr));
+  gap:.4rem; margin-top:.75rem;
+}
+.stat{
+  min-height:60px; padding:.5rem .65rem;
+  background:var(--active); border:1px solid var(--line);
+  border-radius:var(--radius);
+  min-width:0;
+}
+.stat .k{
+  font-size:9.5px; letter-spacing:.1em; color:var(--dim);
+  text-transform:uppercase; font-weight:600;
+}
+.stat .v{
+  font:600 13px var(--mono); color:var(--fg); margin:3px 0 0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.stat .u{ font-size:10px; color:var(--dim); font-weight:400; }
+.stat.hot .v{ color:var(--accent); }
+.stat.good .v{ color:var(--ok); }
+.stat.bad .v{ color:var(--err); }
+.stat.wide{ grid-column:1 / -1; }
+.stat.wide .v{ font-size:11.5px; white-space:normal; overflow:visible; font-weight:500; }
 
-/* ---------- Search / tool list ---------- */
-.search{display:flex;gap:8px}
-.search input{flex:1;height:34px;border:1px solid var(--border);border-radius:var(--r);
-  background:var(--surface);padding:0 10px;font:12px var(--sans);color:var(--text)}
-.search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(245,158,11,.12)}
-.list{display:grid;gap:6px;max-height:352px;overflow-y:auto;padding-right:2px}
-.list-btn{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;
-  padding:8px 10px;border:1px solid var(--border);background:var(--surface);border-radius:var(--r);
-  color:var(--muted);font-size:11px;text-align:left;transition:all .15s}
-.list-btn:hover{border-color:var(--accent);background:#fffbeb;color:var(--text)}
-.list-btn strong{color:var(--text);font-weight:600}
-.list-btn span{font:9px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ---------- Formula / notice / desc ---------- */
+.desc{ font-size:11px; color:var(--dim); line-height:1.5; }
+.formula{
+  font:11px/1.6 var(--mono); color:var(--dim);
+  background:var(--active);
+  border-left:2px solid var(--accent);
+  padding:.4rem .65rem; border-radius:0 var(--radius) var(--radius) 0;
+  margin-top:.5rem;
+}
+.formula b{ color:var(--fg); font-weight:600; }
+.note{ font-size:11.5px; color:var(--dim); line-height:1.55; margin:.35rem 0 0; }
+.notice{
+  padding:.5rem .75rem;
+  border:1px dashed var(--line); background:var(--surface-soft);
+  border-radius:var(--radius);
+  font-size:11.5px; color:var(--dim); line-height:1.55;
+}
 
 /* ---------- Tables ---------- */
-.table-scroll{overflow:auto;border:1px solid var(--border);border-radius:var(--r);
-  max-height:420px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;font:11px var(--mono)}
-th,td{padding:8px 10px;border:1px solid var(--border);text-align:right;white-space:nowrap}
-th{position:sticky;top:0;background:#fafafa;color:var(--muted);font-weight:600;
-  text-transform:uppercase;font-size:9px;letter-spacing:.5px}
-td{color:var(--text)}
-td.l{text-align:left}
-td.eq{font-family:var(--mono);font-size:12px;text-align:left}
-tr:hover td{background:#fffbeb}
+.table-scroll{
+  overflow:auto; border:1px solid var(--line); border-radius:var(--radius);
+  max-height:420px; background:var(--surface);
+}
+table{
+  border-collapse:collapse; width:100%;
+  font:11.5px var(--mono);
+}
+th, td{
+  padding:.4rem .6rem;
+  border-bottom:1px dashed var(--line);
+  text-align:right; white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+th{
+  position:sticky; top:0; background:var(--bg);
+  color:var(--dim); font-weight:600;
+  font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  border-bottom-style:solid;
+}
+td{ color:var(--fg); }
+td.l{ text-align:left; }
+td.eq{ font-family:var(--mono); font-size:11.5px; text-align:left; }
+tr:last-child td{ border-bottom:0; }
+tr:hover td{ background:var(--active); }
 
-/* ---------- Visual Lab ---------- */
-.lab-shell{background:var(--lbg);border-radius:14px;border:1px solid #2a2521;overflow:hidden;
-  box-shadow:0 10px 30px -18px rgba(28,25,23,.55)}
-.lab-top{display:flex;align-items:center;gap:14px;padding:10px 14px;flex-wrap:wrap;
-  background:var(--lbg2);border-bottom:1px solid var(--lline)}
-.lab-modes{display:flex;gap:2px;background:#141110;padding:3px;border-radius:9px;flex-wrap:wrap}
-.lab-mode{height:28px;padding:0 12px;border:0;border-radius:6px;background:transparent;
-  color:var(--lmuted);font-size:11px;font-weight:600;transition:all .15s}
-.lab-mode:hover{color:var(--ltext)}
-.lab-mode.on{background:var(--accent);color:#1c1917}
-.lab-transport{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.lab-btn{width:30px;height:30px;display:grid;place-items:center;background:#141110;
-  border:1px solid var(--lline);border-radius:7px;color:var(--ltext);transition:all .15s}
-.lab-btn:hover{background:#2e2924;color:var(--ltrace);border-color:#3d362e}
-.lab-speed{display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--lmuted)}
-.lab-speed input{width:88px}
-.lab-speed span{font:600 10px var(--mono);color:var(--ltrace);min-width:38px}
-.lab-shell input[type=range]{-webkit-appearance:none;appearance:none;height:16px;
-  background:transparent;cursor:pointer}
-.lab-shell input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:#3d372f}
-.lab-shell input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
-  margin-top:-5px;border-radius:50%;background:var(--accent);border:2px solid var(--lbg);
-  box-shadow:0 0 0 1.5px var(--accent)}
-.lab-shell input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:#3d372f}
-.lab-shell input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;
-  background:var(--accent);border:2px solid var(--lbg);box-shadow:0 0 0 1.5px var(--accent)}
-.lab-hint{padding:9px 14px;background:var(--lbg2);border-bottom:1px solid var(--lline);
-  color:var(--lmuted);font-size:11px;line-height:1.5}
-.lab-stage{position:relative;height:clamp(340px,52vh,520px);background:#141110}
-.lab-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
-.lab-readouts{position:absolute;top:10px;right:12px;display:flex;gap:6px;flex-wrap:wrap;
-  justify-content:flex-end;max-width:62%;pointer-events:none}
-.rpill{background:rgba(20,17,16,.78);border:1px solid #3d372e;color:var(--lmuted);
-  font:600 10px var(--mono);padding:4px 9px;border-radius:6px;backdrop-filter:blur(3px)}
-.rpill b{color:var(--ltrace)}
-.lab-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
-  gap:12px 22px;padding:16px;background:var(--lbg2);border-top:1px solid var(--lline)}
-.ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
-.ctl-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.ctl-row label{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--lmuted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ctl-row .ctl-val{font:600 11px var(--mono);color:var(--ltrace);white-space:nowrap}
-.ctl select{height:30px;background:#141110;color:var(--ltext);border:1px solid #3d372e;
-  border-radius:7px;padding:0 8px;font:600 11px var(--mono)}
+/* ---------- Visual Lab (dark stage in both themes) ---------- */
+.lab-shell{
+  background:var(--lbg); border-radius:6px;
+  border:1px solid var(--lline); overflow:hidden;
+}
+.lab-top{
+  display:flex; align-items:center; gap:14px; padding:10px 14px; flex-wrap:wrap;
+  background:var(--lbg2); border-bottom:1px solid var(--lline);
+}
+.lab-modes{ display:flex; gap:2px; background:#0c0a08; padding:3px; border-radius:6px; flex-wrap:wrap; }
+.lab-mode{
+  min-height:28px; padding:0 11px; border:0; border-radius:4px;
+  background:transparent; color:var(--lmuted);
+  font:500 11px var(--font);
+  transition:color .15s, background .15s;
+}
+.lab-mode:hover{ color:var(--ltext); }
+.lab-mode.on{ background:var(--accent); color:#1a1613; font-weight:600; }
+.lab-transport{ margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.lab-btn{
+  width:30px; height:30px; display:grid; place-items:center;
+  background:#0c0a08; border:1px solid var(--lline); border-radius:4px;
+  color:var(--ltext);
+  transition:background .15s, color .15s, border-color .15s;
+}
+.lab-btn:hover{ background:#2e2924; color:var(--ltrace); border-color:#3d362e; }
+.lab-speed{
+  display:flex; align-items:center; gap:8px;
+  font:500 9px var(--font); font-weight:600;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--lmuted);
+}
+.lab-speed input{ width:88px; }
+.lab-speed span{ font:600 10px var(--mono); color:var(--ltrace); min-width:38px; }
+.lab-shell input[type=range]{ -webkit-appearance:none; appearance:none; height:16px; background:transparent; cursor:pointer; }
+.lab-shell input[type=range]::-webkit-slider-runnable-track{ height:3px; border-radius:2px; background:#3d372f; }
+.lab-shell input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:13px; height:13px; margin-top:-5px;
+  border-radius:50%; background:var(--accent); border:2px solid var(--lbg);
+  box-shadow:0 0 0 1.5px var(--accent);
+}
+.lab-shell input[type=range]::-moz-range-track{ height:3px; border-radius:2px; background:#3d372f; }
+.lab-shell input[type=range]::-moz-range-thumb{
+  width:10px; height:10px; border-radius:50%;
+  background:var(--accent); border:2px solid var(--lbg);
+  box-shadow:0 0 0 1.5px var(--accent);
+}
+.lab-hint{
+  padding:9px 14px; background:var(--lbg2); border-bottom:1px solid var(--lline);
+  color:var(--lmuted); font-size:11px; line-height:1.55;
+}
+.lab-stage{ position:relative; height:clamp(340px,52vh,520px); background:#0f0d0b; }
+.lab-stage canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:pan-y; }
+.lab-readouts{
+  position:absolute; top:10px; right:12px;
+  display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;
+  max-width:62%; pointer-events:none;
+}
+.rpill{
+  background:rgba(20,17,16,.78); border:1px solid #3d372e; color:var(--lmuted);
+  font:500 10px var(--mono); padding:4px 9px; border-radius:4px;
+  backdrop-filter:blur(3px);
+}
+.rpill b{ color:var(--ltrace); font-weight:600; }
+.lab-controls{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+  gap:12px 22px; padding:16px;
+  background:var(--lbg2); border-top:1px solid var(--lline);
+}
+.ctl{ display:flex; flex-direction:column; gap:5px; min-width:0; }
+.ctl-row{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+.ctl-row label{
+  font-size:9px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--lmuted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.ctl-row .ctl-val{ font:600 11px var(--mono); color:var(--ltrace); white-space:nowrap; }
+.ctl select{
+  height:30px; background:#0c0a08; color:var(--ltext); border:1px solid #3d372e;
+  border-radius:4px; padding:0 8px; font:500 11px var(--mono);
+}
 
 /* ---------- Footer / toast ---------- */
-.footer{margin-top:24px;padding:16px 0;color:var(--muted);font-size:11px;
-  border-top:1px solid var(--border);text-align:center}
-.toast{position:fixed;right:20px;bottom:20px;z-index:60;background:#ecfdf5;color:#047857;
-  border:1px solid #a7f3d0;padding:10px 14px;border-radius:var(--r);font:600 11px var(--mono);
-  opacity:0;pointer-events:none;transform:translateY(5px);transition:.2s}
-.toast.show{opacity:1;transform:none}
+.footer{
+  margin-top:2rem; padding:1rem 0 1.5rem;
+  color:var(--dim); font-size:11.5px;
+  border-top:1px solid var(--line); text-align:center;
+}
+#toasts{
+  position:fixed; bottom:20px; right:20px; z-index:60;
+  display:flex; flex-direction:column; gap:.4rem;
+  width:min(340px, calc(100vw - 2rem));
+  pointer-events:none;
+}
+.toast{
+  display:flex; gap:.5rem; align-items:flex-start;
+  background:var(--surface); color:var(--fg);
+  border:1px solid var(--line); border-left:3px solid var(--accent);
+  padding:.5rem .65rem; border-radius:var(--radius);
+  font:500 12px var(--mono); line-height:1.45;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  pointer-events:auto;
+}
+.toast-mark{ color:var(--accent); font-weight:600; flex-shrink:0; }
 
 /* ---------- Responsive ---------- */
-@media(max-width:1000px){
-  .grid>[class*=span-]{grid-column:span 12}
+@media (max-width:1000px){
+  .grid > [class*=span-]{ grid-column:span 12; }
+  .fields{ grid-template-columns:1fr; }
+  .field{ grid-template-columns:98px 1fr auto; }
 }
-@media(max-width:900px){
-  header{height:auto;min-height:64px;flex-wrap:wrap;padding:10px 16px;gap:10px}
-  .brand{min-width:0}
-  .tabs{order:3;width:100%;height:40px}
-  .tab{height:40px;padding-bottom:8px}
-  #layout{display:block}
-  aside{display:none}
-  main{padding:20px 16px 40px}
-  .grid{grid-template-columns:1fr}
-  .hero{align-items:flex-start;flex-direction:column}
-  .fields{grid-template-columns:1fr}
-  .field{grid-template-columns:98px 1fr 46px}
-  .field.no-unit{grid-template-columns:98px 1fr}
-  .lab-readouts{max-width:100%}
+@media (max-width:900px){
+  .layout{ grid-template-columns:1fr; }
+  .side{ position:static; }
+  .cat-list{ max-height:280px; }
+  .topbar-tools .eyebrow{ display:none; }
 }
+@media (max-width:620px){
+  .hero{ padding:1.25rem 0 .85rem; }
+  .mode-tabs{ gap:0; }
+  .tab{ flex:1; text-align:center; }
+  .lab-readouts{ max-width:100%; }
+}
+
 @media print{
-  header{position:static}
-  .tabs,.header-actions,aside,.actions,.quick,.lab-top,.lab-hint,.lab-controls,.toast{display:none!important}
-  main{padding:0}
-  .pane{display:block!important}
-  .card{break-inside:avoid;box-shadow:none}
+  header, .topbar, .hero, .mode-tabs, .side, .quick, .actions,
+  .lab-top, .lab-hint, .lab-controls, #toasts, .footer{ display:none !important; }
+  .layout{ display:block; }
+  .pane{ display:block !important; }
+  .card{ break-inside:avoid; box-shadow:none; }
+  body{ background:#fff; }
 }
 </style>
 </head>
 <body>
+<div id="toasts" aria-live="polite"></div>
 
-<header>
-  <div class="brand">
-    <div class="brand-mark">A</div>
-    <div>
-      <div class="brand-name">AZNUR EM</div>
-      <span class="brand-sub">ELECTROMAGNETISM WORKBENCH</span>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#">aznur<span class="slash">/</span>em</a>
+    <div class="topbar-tools">
+      <label class="eyebrow" for="theme1">Theme</label>
+      <select id="theme1" aria-label="Theme" style="width:auto;min-width:88px;min-height:28px;font-size:11.5px;padding:.15rem .4rem;">
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+      <button class="btn sm secondary" id="resetBtn">Reset</button>
+      <button class="btn sm accent" id="printBtn">Print</button>
     </div>
-  </div>
-  <nav class="tabs" id="tabs" aria-label="Main sections">
-    <button class="tab on" data-pane="home">Dashboard</button>
-    <button class="tab" data-pane="electro">Electrostatics</button>
-    <button class="tab" data-pane="circuits">Circuits</button>
-    <button class="tab" data-pane="magnet">Magnetism</button>
-    <button class="tab" data-pane="ac">AC + Induction</button>
-    <button class="tab" data-pane="waves">EM Waves</button>
-    <button class="tab" data-pane="materials">Materials</button>
-    <button class="tab" data-pane="visual">Visual Lab</button>
-    <button class="tab" data-pane="reference">Reference</button>
-  </nav>
-  <div class="header-actions">
-    <button class="mini" id="resetBtn">Reset</button>
-    <button class="mini primary" id="printBtn">Print</button>
   </div>
 </header>
 
-<div id="layout">
-<aside aria-label="Toolbook">
-  <div class="side-group">
-    <div class="side-head">Sections</div>
-    <button class="side-btn on" data-pane="home"><span>Overview</span><b>01</b></button>
-    <button class="side-btn" data-pane="electro"><span>Electrostatics</span><b>02</b></button>
-    <button class="side-btn" data-pane="circuits"><span>Circuits + DC</span><b>03</b></button>
-    <button class="side-btn" data-pane="magnet"><span>Magnetic fields</span><b>04</b></button>
-    <button class="side-btn" data-pane="ac"><span>AC + induction</span><b>05</b></button>
-    <button class="side-btn" data-pane="waves"><span>EM waves</span><b>06</b></button>
-    <button class="side-btn" data-pane="materials"><span>Materials + devices</span><b>07</b></button>
-    <button class="side-btn" data-pane="visual"><span>Visual laboratory</span><b>08</b></button>
-    <button class="side-btn" data-pane="reference"><span>Equation book</span><b>09</b></button>
-  </div>
-</aside>
+<main class="wrap">
 
-<main>
-<div class="page">
+  <section class="hero">
+    <p class="eyebrow">Fig 0. Offline · Electromagnetism toolbox</p>
+    <h1>Electromagnetism Workbench</h1>
+    <p class="lede">Fast, offline calculations for electrostatics, circuits, magnetism, induction, AC, EM waves, materials and live field visualisation. Your data never leaves your device.</p>
+  </section>
+
+  <nav class="mode-tabs" role="tablist" aria-label="Mode">
+    <button id="mCalc" class="tab" role="tab" aria-selected="true">Calculators</button>
+    <button id="mRef" class="tab" role="tab" aria-selected="false">Reference</button>
+  </nav>
+
+  <div class="layout">
+    <aside class="side">
+      <p class="eyebrow">Sections</p>
+      <label class="search-wrap" aria-label="Search sections">
+        <span class="prompt">&gt;</span>
+        <input id="catSearch" type="text" placeholder="Search…" aria-label="Search sections"/>
+      </label>
+      <div class="cat-list" id="catList">
+        <button class="cat active" data-pane="home">Dashboard <small>5</small></button>
+        <button class="cat" data-pane="electro">Electrostatics <small>7</small></button>
+        <button class="cat" data-pane="circuits">Circuits + DC <small>7</small></button>
+        <button class="cat" data-pane="magnet">Magnetism <small>6</small></button>
+        <button class="cat" data-pane="ac">AC + Induction <small>6</small></button>
+        <button class="cat" data-pane="waves">EM Waves <small>5</small></button>
+        <button class="cat" data-pane="materials">Materials <small>6</small></button>
+        <button class="cat" data-pane="visual">Visual Lab <small>8</small></button>
+      </div>
+    </aside>
+
+    <div id="main">
 
 <!-- ============================ HOME ============================ -->
-<section class="pane on" id="pane-home">
-  <div class="hero">
-    <div class="hero-text">
-      <h1>Electromagnetism Workbench</h1>
-      <p>Fast, offline calculations for electrostatics, circuits, magnetism, induction, AC, EM waves, materials and live field visualisation. Your data never leaves your device.</p>
-    </div>
-    <div class="tag">SINGLE HTML · NO LIBRARIES</div>
-  </div>
-
+<section class="pane active" id="pane-home">
   <div class="quick">
     <button class="chip" data-open="coulomb">Coulomb law</button>
     <button class="chip" data-open="electricField">Electric field</button>
@@ -315,13 +546,12 @@ tr:hover td{background:#fffbeb}
     <button class="chip" data-open="emwave">EM wave</button>
     <button class="chip" data-open="skin">Skin depth</button>
   </div>
-
   <div class="grid">
     <div class="card span-7 accent">
       <h2>Find a tool</h2>
       <div class="search">
         <input id="toolSearch" placeholder="Search a calculator, law, circuit, field, material or wave tool…" aria-label="Search calculators">
-        <button class="mini" id="clearSearch">Clear</button>
+        <button class="btn secondary sm" id="clearSearch">Clear</button>
       </div>
       <div id="toolList" class="list"></div>
     </div>
@@ -344,7 +574,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Charge q₂</label><input id="qcoQ2" type="number" step="any" value="-3"><span class="unit">μC</span></div>
         <div class="field full"><label>Distance r</label><input id="qcoR" type="number" step="any" value="0.2"><span class="unit">m</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="qcoOut"></div>
     </div>
     <div class="card span-6" data-calc="qohm" id="tool-quickOhm">
@@ -353,22 +583,18 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Voltage V</label><input id="qoV" type="number" step="any" value="12"><span class="unit">V</span></div>
         <div class="field"><label>Current I</label><input id="qoI" type="number" step="any" value="2"><span class="unit">A</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="qohmOut"></div>
     </div>
     <div class="card span-12">
       <h2>Scope</h2>
-      <div class="notice">Calculators use standard SI relationships and common engineering approximations. Material properties, losses and device parameters are user inputs. Results are intended for education, preliminary design and quick checking - not certified metrology.</div>
+      <div class="notice">Calculators use standard SI relationships and common engineering approximations. Material properties, losses and device parameters are user inputs. Results are intended for education, preliminary design and quick checking — not certified metrology.</div>
     </div>
   </div>
 </section>
 
 <!-- ============================ ELECTROSTATICS ============================ -->
 <section class="pane" id="pane-electro">
-  <div class="hero">
-    <div class="hero-text"><h1>Electrostatics</h1><p>Charges, fields, potentials, dipoles, capacitors, energy density and Gauss-law symmetry tools.</p></div>
-    <div class="tag">CHARGES / E / V / C</div>
-  </div>
   <div class="grid">
     <div class="card span-6 accent" data-calc="co" id="tool-coulomb">
       <h2>Coulomb Force <small>F = k|q₁q₂|/r²</small></h2>
@@ -378,9 +604,9 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Distance r</label><input id="cor" type="number" step="any" value="0.2"><span class="unit">m</span></div>
         <div class="field"><label>Medium εr</label><input id="coepsr" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="coOut"></div>
-      <div class="formula"><b>F = kₑ|q₁q₂|/(εᵣr²)</b> - opposite signs attract, like signs repel.</div>
+      <div class="formula"><b>F = kₑ|q₁q₂|/(εᵣr²)</b> — opposite signs attract, like signs repel.</div>
     </div>
 
     <div class="card span-6" data-calc="ef" id="tool-electricField">
@@ -391,7 +617,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>εr</label><input id="efeps" type="number" step="any" value="1"><span class="unit">-</span></div>
         <div class="field"><label>Probe charge</label><input id="efqp" type="number" step="any" value="2"><span class="unit">nC</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="efOut"></div>
     </div>
 
@@ -403,7 +629,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Test charge</label><input id="pvqp" type="number" step="any" value="2"><span class="unit">μC</span></div>
         <div class="field"><label>εr</label><input id="pveps" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="pvOut"></div>
       <div class="formula"><b>V = kq/(εᵣr)</b>, &nbsp; U = q_test·V</div>
     </div>
@@ -428,12 +654,12 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>C₁</label><input id="capC1" type="number" step="any" value="2"><span class="unit">μF</span></div>
         <div class="field"><label>C₂</label><input id="capC2" type="number" step="any" value="4"><span class="unit">μF</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="capOut"></div>
       <div class="formula">Plate: <b>C=εA/d</b> · coax: <b>C=2πεL/ln(r₂/r₁)</b> · sphere: <b>C=4πεr</b></div>
     </div>
 
-    <div class="card span-5" data-calc="gauss" id="tool-gauss">
+    <div class="card span-6" data-calc="gauss" id="tool-gauss">
       <h2>Gauss Law Symmetry</h2>
       <div class="fields">
         <div class="field no-unit full"><label>Surface</label><select id="gaussType">
@@ -446,11 +672,11 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Line charge λ</label><input id="gaussLam" type="number" step="any" value="2"><span class="unit">μC/m</span></div>
         <div class="field full"><label>Sheet σ</label><input id="gaussSig" type="number" step="any" value="3"><span class="unit">μC/m²</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="gaussOut"></div>
     </div>
 
-    <div class="card span-4" data-calc="dip" id="tool-dipole">
+    <div class="card span-6" data-calc="dip" id="tool-dipole">
       <h2>Electric Dipole</h2>
       <div class="fields">
         <div class="field"><label>Charge ±q</label><input id="dipQ" type="number" step="any" value="2"><span class="unit">μC</span></div>
@@ -458,20 +684,20 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Field point r</label><input id="dipR" type="number" step="any" value="0.5"><span class="unit">m</span></div>
         <div class="field full"><label>Angle θ</label><input id="dipTheta" type="number" step="any" value="0"><span class="unit">deg</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="dipOut"></div>
       <div class="formula">p = qd. Far field: <b>E_r = 2p cosθ/4πε₀r³</b>, E_θ = p sinθ/4πε₀r³ (r ≫ d).</div>
     </div>
 
-    <div class="card span-3" data-calc="ed" id="tool-energydensity">
+    <div class="card span-6" data-calc="ed" id="tool-energydensity">
       <h2>Energy Density</h2>
       <div class="fields">
-        <div class="field full"><label>εr</label><input id="edEps" type="number" step="any" value="2.2"><span class="unit">-</span></div>
-        <div class="field full"><label>Field E</label><input id="edE" type="number" step="any" value="1e6"><span class="unit">V/m</span></div>
-        <div class="field full"><label>Plate area</label><input id="edA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
-        <div class="field full"><label>Gap</label><input id="edD" type="number" step="any" value="0.001"><span class="unit">m</span></div>
+        <div class="field"><label>εr</label><input id="edEps" type="number" step="any" value="2.2"><span class="unit">-</span></div>
+        <div class="field"><label>Field E</label><input id="edE" type="number" step="any" value="1e6"><span class="unit">V/m</span></div>
+        <div class="field"><label>Plate area</label><input id="edA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
+        <div class="field"><label>Gap</label><input id="edD" type="number" step="any" value="0.001"><span class="unit">m</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="edOut"></div>
       <div class="formula"><b>uₑ = ½εE²</b></div>
     </div>
@@ -480,10 +706,6 @@ tr:hover td{background:#fffbeb}
 
 <!-- ============================ CIRCUITS ============================ -->
 <section class="pane" id="pane-circuits">
-  <div class="hero">
-    <div class="hero-text"><h1>Circuits + DC</h1><p>Ohm’s law, power, resistor networks, Kirchhoff loops, RC/RL transients, battery packs and energy cost.</p></div>
-    <div class="tag">V / I / R / POWER</div>
-  </div>
   <div class="grid">
     <div class="card span-6 accent" data-calc="dc" id="tool-dcCircuit">
       <h2>DC Circuit Quick Calculator <small>V = IR</small></h2>
@@ -495,7 +717,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Current I</label><input id="dcI" type="number" step="any" value="2"><span class="unit">A</span></div>
         <div class="field full"><label>Resistance R</label><input id="dcR" type="number" step="any" value="6"><span class="unit">Ω</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="dcOut"></div>
       <div class="formula"><b>P = VI = I²R = V²/R</b></div>
     </div>
@@ -512,7 +734,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>R₃</label><input id="res3" type="number" step="any" value="30"><span class="unit">Ω</span></div>
         <div class="field full"><label>Source V</label><input id="resV" type="number" step="any" value="12"><span class="unit">V</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="resOut"></div>
     </div>
 
@@ -525,7 +747,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>R₂ shared</label><input id="kr2" type="number" step="any" value="2"><span class="unit">Ω</span></div>
         <div class="field full"><label>R₃ loop 2</label><input id="kr3" type="number" step="any" value="6"><span class="unit">Ω</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Solve KVL</button></div>
+      <div class="actions"><button class="btn accent">Solve KVL</button></div>
       <div class="results" id="kOut"></div>
       <div class="formula">I₁(R₁+R₂) − I₂R₂ = E₁; &nbsp; −I₁R₂ + I₂(R₂+R₃) = E₂</div>
     </div>
@@ -539,7 +761,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Initial Vc</label><input id="rcV0" type="number" step="any" value="0"><span class="unit">V</span></div>
         <div class="field full"><label>Time t</label><input id="rcT" type="number" step="any" value="1"><span class="unit">s</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="rcOut"></div>
       <div class="formula">Charging: <b>Vc = Vf + (V₀−Vf)e⁻ᵗ/𝛕</b>, τ = RC</div>
     </div>
@@ -553,7 +775,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Initial I</label><input id="rlI0" type="number" step="any" value="0"><span class="unit">A</span></div>
         <div class="field full"><label>Time t</label><input id="rlT" type="number" step="any" value="0.2"><span class="unit">s</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="rlOut"></div>
       <div class="formula">Current rise: <b>I = I∞ + (I₀−I∞)e⁻ᵗ/𝛕</b>, τ = L/R</div>
     </div>
@@ -562,12 +784,12 @@ tr:hover td{background:#fffbeb}
       <h2>Battery Pack + Internal Resistance</h2>
       <div class="fields">
         <div class="field"><label>Cell emf</label><input id="batE" type="number" step="any" value="3.7"><span class="unit">V</span></div>
-        <div class="field"><label>Cell internal r</label><input id="batr" type="number" step="any" value="0.03"><span class="unit">Ω</span></div>
-        <div class="field"><label>Series cells Ns</label><input id="batNs" type="number" step="1" value="10"><span class="unit">cells</span></div>
-        <div class="field"><label>Parallel strings Np</label><input id="batNp" type="number" step="1" value="2"><span class="unit">strings</span></div>
+        <div class="field"><label>Cell r</label><input id="batr" type="number" step="any" value="0.03"><span class="unit">Ω</span></div>
+        <div class="field"><label>Ns</label><input id="batNs" type="number" step="1" value="10"><span class="unit">cells</span></div>
+        <div class="field"><label>Np</label><input id="batNp" type="number" step="1" value="2"><span class="unit">str</span></div>
         <div class="field full"><label>Load R</label><input id="batR" type="number" step="any" value="3"><span class="unit">Ω</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Pack check</button></div>
+      <div class="actions"><button class="btn accent">Pack check</button></div>
       <div class="results" id="batOut"></div>
     </div>
 
@@ -576,14 +798,14 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field"><label>Voltage</label><input id="ecV" type="number" step="any" value="230"><span class="unit">V</span></div>
         <div class="field"><label>Current</label><input id="ecI" type="number" step="any" value="5"><span class="unit">A</span></div>
-        <div class="field"><label>Power factor</label><input id="ecPF" type="number" step="any" value="0.9"><span class="unit">-</span></div>
+        <div class="field"><label>PF</label><input id="ecPF" type="number" step="any" value="0.9"><span class="unit">-</span></div>
         <div class="field"><label>Hours</label><input id="ecH" type="number" step="any" value="8"><span class="unit">h</span></div>
-        <div class="field"><label>Tariff</label><input id="ecTar" type="number" step="any" value="12"><span class="unit">Tk/kWh</span></div>
+        <div class="field"><label>Tariff</label><input id="ecTar" type="number" step="any" value="12"><span class="unit">Tk</span></div>
         <div class="field no-unit"><label>Phase</label><select id="ecPhase">
-          <option value="1">Single phase</option><option value="3">Three phase</option>
+          <option value="1">1φ</option><option value="3">3φ</option>
         </select></div>
       </div>
-      <div class="actions"><button class="btn primary">Estimate</button></div>
+      <div class="actions"><button class="btn accent">Estimate</button></div>
       <div class="results" id="ecOut"></div>
     </div>
   </div>
@@ -591,10 +813,6 @@ tr:hover td{background:#fffbeb}
 
 <!-- ============================ MAGNETISM ============================ -->
 <section class="pane" id="pane-magnet">
-  <div class="hero">
-    <div class="hero-text"><h1>Magnetism</h1><p>Magnetic force, charged-particle motion, current-carrying conductors, solenoids and magnetic torque.</p></div>
-    <div class="tag">B / F / Φ / MOMENT</div>
-  </div>
   <div class="grid">
     <div class="card span-6 accent" data-calc="mf" id="tool-magneticForce">
       <h2>Lorentz Force <small>F = qvB sinθ</small></h2>
@@ -604,35 +822,35 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Field B</label><input id="mfB" type="number" step="any" value="0.4"><span class="unit">T</span></div>
         <div class="field"><label>Angle θ</label><input id="mfTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="mfOut"></div>
-      <div class="formula">Magnetic component: <b>F = qvB sinθ</b> - force ⊥ both v and B.</div>
+      <div class="formula">Magnetic component: <b>F = qvB sinθ</b> — force ⊥ both v and B.</div>
     </div>
 
     <div class="card span-6" data-calc="cp" id="tool-particle">
       <h2>Charged Particle in Uniform B</h2>
       <div class="fields">
-        <div class="field"><label>Particle charge</label><input id="cpq" type="number" step="any" value="1"><span class="unit">e</span></div>
+        <div class="field"><label>Charge</label><input id="cpq" type="number" step="any" value="1"><span class="unit">e</span></div>
         <div class="field"><label>Mass</label><input id="cpm" type="number" step="any" value="9.109e-31"><span class="unit">kg</span></div>
         <div class="field"><label>Velocity</label><input id="cpv" type="number" step="any" value="2e6"><span class="unit">m/s</span></div>
         <div class="field"><label>Field B</label><input id="cpB" type="number" step="any" value="0.1"><span class="unit">T</span></div>
         <div class="field full"><label>Pitch angle</label><input id="cpTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="cpOut"></div>
       <div class="formula"><b>r = mv⊥/|q|B</b>, ωc = |q|B/m, pitch = v∥·T</div>
     </div>
 
     <div class="card span-6" data-calc="lw" id="tool-fieldWire">
-      <h2>Field of a Long Straight Wire</h2>
+      <h2>Field of a Long Wire</h2>
       <div class="fields">
         <div class="field"><label>Current I</label><input id="lwI" type="number" step="any" value="10"><span class="unit">A</span></div>
         <div class="field"><label>Distance r</label><input id="lwR" type="number" step="any" value="0.1"><span class="unit">m</span></div>
         <div class="field full"><label>μr</label><input id="lwMur" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="lwOut"></div>
-      <div class="formula"><b>B = μI/2πr</b> - direction by the right-hand rule.</div>
+      <div class="formula"><b>B = μI/2πr</b> — direction by the right-hand rule.</div>
     </div>
 
     <div class="card span-6" data-calc="sol" id="tool-solenoid">
@@ -644,7 +862,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Core μr</label><input id="solMur" type="number" step="any" value="1"><span class="unit">-</span></div>
         <div class="field full"><label>Area A</label><input id="solA" type="number" step="any" value="0.0005"><span class="unit">m²</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="solOut"></div>
       <div class="formula"><b>B = μ₀μrNI/L</b> &nbsp;·&nbsp; L = μ₀μrN²A/ℓ</div>
     </div>
@@ -657,7 +875,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Field B</label><input id="wfB" type="number" step="any" value="0.2"><span class="unit">T</span></div>
         <div class="field"><label>Angle θ</label><input id="wfTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="wfOut"></div>
       <div class="formula"><b>F = BIL sinθ</b></div>
     </div>
@@ -671,7 +889,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Field B</label><input id="torB" type="number" step="any" value="0.25"><span class="unit">T</span></div>
         <div class="field full"><label>Angle θ</label><input id="torTheta" type="number" step="any" value="90"><span class="unit">deg</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="torOut"></div>
       <div class="formula">Moment <b>m = NIA</b> &nbsp;·&nbsp; torque <b>τ = mB sinθ</b></div>
     </div>
@@ -680,13 +898,9 @@ tr:hover td{background:#fffbeb}
 
 <!-- ============================ AC + INDUCTION ============================ -->
 <section class="pane" id="pane-ac">
-  <div class="hero">
-    <div class="hero-text"><h1>AC, Induction + Transformers</h1><p>Faraday’s law, flux, inductors, impedance, resonance, power factor, transformers and skin depth.</p></div>
-    <div class="tag">AC / Φ / L / Z / POWER</div>
-  </div>
   <div class="grid">
     <div class="card span-6 accent" data-calc="in" id="tool-induction">
-      <h2>Faraday’s Law <small>ℰ = −N dΦ/dt</small></h2>
+      <h2>Faraday's Law <small>ℰ = −N dΦ/dt</small></h2>
       <div class="fields">
         <div class="field"><label>Turns N</label><input id="inN" type="number" step="any" value="500"><span class="unit">turns</span></div>
         <div class="field"><label>Area A</label><input id="inA" type="number" step="any" value="0.01"><span class="unit">m²</span></div>
@@ -695,9 +909,9 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Δt</label><input id="inDt" type="number" step="any" value="0.05"><span class="unit">s</span></div>
         <div class="field"><label>Angle θ</label><input id="inTheta" type="number" step="any" value="0"><span class="unit">deg</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="inOut"></div>
-      <div class="formula"><b>Φ = BA cosθ</b> - average emf magnitude = N|ΔΦ/Δt|</div>
+      <div class="formula"><b>Φ = BA cosθ</b> — average emf magnitude = N|ΔΦ/Δt|</div>
     </div>
 
     <div class="card span-6" data-calc="rlc" id="tool-rlc">
@@ -706,10 +920,10 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>R</label><input id="rlcR" type="number" step="any" value="10"><span class="unit">Ω</span></div>
         <div class="field"><label>L</label><input id="rlcL" type="number" step="any" value="0.05"><span class="unit">H</span></div>
         <div class="field"><label>C</label><input id="rlcC" type="number" step="any" value="100"><span class="unit">μF</span></div>
-        <div class="field"><label>Frequency f</label><input id="rlcF" type="number" step="any" value="50"><span class="unit">Hz</span></div>
+        <div class="field"><label>Freq f</label><input id="rlcF" type="number" step="any" value="50"><span class="unit">Hz</span></div>
         <div class="field full"><label>Source Vrms</label><input id="rlcV" type="number" step="any" value="230"><span class="unit">V</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="rlcOut"></div>
       <div class="formula"><b>X_L = ωL, X_C = 1/ωC</b>, Z = √(R²+(X_L−X_C)²), f₀ = 1/2π√LC</div>
     </div>
@@ -723,7 +937,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>I₂ load</label><input id="trI2" type="number" step="any" value="5"><span class="unit">A</span></div>
         <div class="field full"><label>Efficiency</label><input id="trEff" type="number" step="any" value="95"><span class="unit">%</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="trOut"></div>
       <div class="formula">Ideal: <b>V₂/V₁ = N₂/N₁</b>, I₂/I₁ ≈ N₁/N₂</div>
     </div>
@@ -732,14 +946,14 @@ tr:hover td{background:#fffbeb}
       <h2>AC Power + Power Factor</h2>
       <div class="fields">
         <div class="field no-unit"><label>System</label><select id="pfPhase">
-          <option value="1">Single phase</option><option value="3">Three phase</option>
+          <option value="1">1φ</option><option value="3">3φ</option>
         </select></div>
         <div class="field"><label>Vrms</label><input id="pfV" type="number" step="any" value="230"><span class="unit">V</span></div>
         <div class="field"><label>Irms</label><input id="pfI" type="number" step="any" value="10"><span class="unit">A</span></div>
         <div class="field"><label>PF</label><input id="pfPF" type="number" step="any" value="0.85"><span class="unit">-</span></div>
         <div class="field full"><label>Hours</label><input id="pfHr" type="number" step="any" value="1"><span class="unit">h</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="pfOut"></div>
     </div>
 
@@ -752,7 +966,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Turns N</label><input id="lbN" type="number" step="any" value="200"><span class="unit">turns</span></div>
         <div class="field full"><label>Flux Φ</label><input id="lbPhi" type="number" step="any" value="0.0001"><span class="unit">Wb</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="lbOut"></div>
       <div class="formula"><b>U = ½LI²</b> &nbsp;·&nbsp; v = L·dI/dt &nbsp;·&nbsp; L = NΦ/I</div>
     </div>
@@ -764,7 +978,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Resistivity ρ</label><input id="skinRho" type="number" step="any" value="1.72e-8"><span class="unit">Ω·m</span></div>
         <div class="field full"><label>μr</label><input id="skinMur" type="number" step="any" value="1"><span class="unit">-</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="skinOut"></div>
       <div class="formula"><b>δ = √(2ρ/ωμ)</b> for a good conductor</div>
     </div>
@@ -773,10 +987,6 @@ tr:hover td{background:#fffbeb}
 
 <!-- ============================ EM WAVES ============================ -->
 <section class="pane" id="pane-waves">
-  <div class="hero">
-    <div class="hero-text"><h1>Electromagnetic Waves</h1><p>Wave speed, wavelength, impedance, Poynting vector, photons, radiation pressure and path loss.</p></div>
-    <div class="tag">c / λ / f / S / PHOTONS</div>
-  </div>
   <div class="grid">
     <div class="card span-6 accent" data-calc="ew" id="tool-emwave">
       <h2>EM Wave Calculator</h2>
@@ -786,22 +996,22 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>μr</label><input id="ewMr" type="number" step="any" value="1"><span class="unit">-</span></div>
         <div class="field full"><label>E amplitude (peak)</label><input id="ewE" type="number" step="any" value="10"><span class="unit">V/m</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="ewOut"></div>
-      <div class="formula"><b>v = 1/√(με)</b>, λ = v/f, Z = √(μ/ε) - free space Z₀ ≈ 376.73 Ω</div>
+      <div class="formula"><b>v = 1/√(με)</b>, λ = v/f, Z = √(μ/ε) — free space Z₀ ≈ 376.73 Ω</div>
     </div>
 
     <div class="card span-6" data-calc="po" id="tool-poynting">
       <h2>Poynting Vector + Intensity</h2>
       <div class="fields">
         <div class="field"><label>E rms</label><input id="poE" type="number" step="any" value="5"><span class="unit">V/m</span></div>
-        <div class="field"><label>Medium impedance</label><input id="poZ" type="number" step="any" value="376.73"><span class="unit">Ω</span></div>
+        <div class="field"><label>Medium Z</label><input id="poZ" type="number" step="any" value="376.73"><span class="unit">Ω</span></div>
         <div class="field"><label>Area</label><input id="poA" type="number" step="any" value="2"><span class="unit">m²</span></div>
         <div class="field full"><label>Distance r</label><input id="poR" type="number" step="any" value="10"><span class="unit">m</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="poOut"></div>
-      <div class="formula">Plane wave: <b>I = E_rms²/Z</b> - power crossing A = IA</div>
+      <div class="formula">Plane wave: <b>I = E_rms²/Z</b> — power crossing A = IA</div>
     </div>
 
     <div class="card span-6" data-calc="ph" id="tool-photon">
@@ -809,9 +1019,9 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field"><label>Frequency</label><input id="phF" type="number" step="any" value="5e14"><span class="unit">Hz</span></div>
         <div class="field"><label>Wavelength</label><input id="phLam" type="number" step="any" value="600"><span class="unit">nm</span></div>
-        <div class="field full"><label>Photon rate</label><input id="phN" type="number" step="any" value="1e18"><span class="unit">photons/s</span></div>
+        <div class="field full"><label>Photon rate</label><input id="phN" type="number" step="any" value="1e18"><span class="unit">/s</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="phOut"></div>
       <div class="formula"><b>E = hf = hc/λ</b>, p = h/λ, power = rate × E</div>
     </div>
@@ -826,7 +1036,7 @@ tr:hover td{background:#fffbeb}
           <option value="ref">Perfect reflector</option>
         </select></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="rpOut"></div>
       <div class="formula">Absorber: <b>p = I/c</b> · reflector: p = 2I/c</div>
     </div>
@@ -838,7 +1048,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Distance</label><input id="fsD" type="number" step="any" value="1"><span class="unit">km</span></div>
         <div class="field full"><label>Transmit power</label><input id="fsPt" type="number" step="any" value="20"><span class="unit">dBm</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="fsOut"></div>
       <div class="formula">FSPL(dB) = 20log₁₀(d_km) + 20log₁₀(f_MHz) + 32.44 &nbsp;·&nbsp; P_r = P_t − FSPL (isotropic)</div>
     </div>
@@ -847,10 +1057,6 @@ tr:hover td{background:#fffbeb}
 
 <!-- ============================ MATERIALS ============================ -->
 <section class="pane" id="pane-materials">
-  <div class="hero">
-    <div class="hero-text"><h1>Materials + Devices</h1><p>Resistivity and voltage drop, Hall effect, drift velocity, band gaps and material property tables.</p></div>
-    <div class="tag">MATERIALS / DEVICES</div>
-  </div>
   <div class="grid">
     <div class="card span-6 accent" data-calc="reswire" id="tool-reswire">
       <h2>Conductor Resistance + Drop</h2>
@@ -868,7 +1074,7 @@ tr:hover td{background:#fffbeb}
         <div class="field"><label>Cross-section</label><input id="resA" type="number" step="any" value="1.5"><span class="unit">mm²</span></div>
         <div class="field full"><label>Current</label><input id="resI" type="number" step="any" value="10"><span class="unit">A</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="rwOut"></div>
       <div class="formula"><b>R = ρL/A</b> &nbsp;·&nbsp; drop = IR &nbsp;·&nbsp; loss = I²R</div>
     </div>
@@ -878,24 +1084,24 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field"><label>Current I</label><input id="haI" type="number" step="any" value="0.01"><span class="unit">A</span></div>
         <div class="field"><label>Field B</label><input id="haB" type="number" step="any" value="0.5"><span class="unit">T</span></div>
-        <div class="field"><label>Carrier density n</label><input id="haN" type="number" step="any" value="1e16"><span class="unit">cm⁻³</span></div>
+        <div class="field"><label>Carrier n</label><input id="haN" type="number" step="any" value="1e16"><span class="unit">cm⁻³</span></div>
         <div class="field full"><label>Thickness t</label><input id="haT" type="number" step="any" value="100"><span class="unit">μm</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="haOut"></div>
-      <div class="formula"><b>V_H = IB/(nqt)</b> - sign identifies carrier type</div>
+      <div class="formula"><b>V_H = IB/(nqt)</b> — sign identifies carrier type</div>
     </div>
 
     <div class="card span-6" data-calc="dr" id="tool-drift">
       <h2>Drift Velocity</h2>
       <div class="fields">
         <div class="field"><label>Current I</label><input id="drI" type="number" step="any" value="1"><span class="unit">A</span></div>
-        <div class="field"><label>Carrier density n</label><input id="drN" type="number" step="any" value="8.5e22"><span class="unit">cm⁻³</span></div>
+        <div class="field"><label>Carrier n</label><input id="drN" type="number" step="any" value="8.5e22"><span class="unit">cm⁻³</span></div>
         <div class="field full"><label>Cross-section</label><input id="drA" type="number" step="any" value="1"><span class="unit">mm²</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="drOut"></div>
-      <div class="formula"><b>v_d = I/(nqA)</b> - copper default (n ≈ 8.5×10²² cm⁻³)</div>
+      <div class="formula"><b>v_d = I/(nqA)</b> — copper default (n ≈ 8.5×10²² cm⁻³)</div>
     </div>
 
     <div class="card span-6" data-calc="bg" id="tool-bandgap">
@@ -903,9 +1109,9 @@ tr:hover td{background:#fffbeb}
       <div class="fields">
         <div class="field full"><label>Band gap E_g</label><input id="bgEg" type="number" step="any" value="1.12"><span class="unit">eV</span></div>
       </div>
-      <div class="actions"><button class="btn primary">Calculate</button></div>
+      <div class="actions"><button class="btn accent">Calculate</button></div>
       <div class="results" id="bgOut"></div>
-      <div class="formula"><b>λ_max = 1240/E_g (nm)</b> - Si default (1.12 eV)</div>
+      <div class="formula"><b>λ_max = 1240/E_g (nm)</b> — Si default (1.12 eV)</div>
     </div>
 
     <div class="card span-6">
@@ -948,14 +1154,6 @@ tr:hover td{background:#fffbeb}
 
 <!-- ============================ VISUAL LAB ============================ -->
 <section class="pane" id="pane-visual">
-  <div class="hero">
-    <div class="hero-text">
-      <h1>Visual Lab</h1>
-      <p>Eight live electromagnetism experiments on one shared engine. Every slider writes straight into the simulation state and the canvas re-renders immediately - even while paused.</p>
-    </div>
-    <div class="tag">CANVAS · LIVE · ZERO DEPS</div>
-  </div>
-
   <div class="lab-shell">
     <div class="lab-top">
       <div class="lab-modes" id="labModes" aria-label="Experiments"></div>
@@ -977,16 +1175,11 @@ tr:hover td{background:#fffbeb}
     </div>
     <div class="lab-controls" id="labControls"></div>
   </div>
-
-  <div class="note" style="margin-top:12px">Field-line, particle and wire experiments use model units chosen for visibility - the geometry follows the real vector laws (right-hand rules, E ∝ 1/r², B ∝ 1/r). Wave, resonance, transient and skin-depth plots are computed from the actual physics. Space toggles play/pause.</div>
+  <div class="note" style="margin-top:12px">Field-line, particle and wire experiments use model units chosen for visibility — the geometry follows the real vector laws (right-hand rules, E ∝ 1/r², B ∝ 1/r). Wave, resonance, transient and skin-depth plots are computed from the actual physics. Space toggles play/pause.</div>
 </section>
 
 <!-- ============================ REFERENCE ============================ -->
 <section class="pane" id="pane-reference">
-  <div class="hero">
-    <div class="hero-text"><h1>Reference &amp; Equations</h1><p>Constants, the core electromagnetism equation book and unit shortcuts.</p></div>
-    <div class="tag">REFERENCE</div>
-  </div>
   <div class="grid">
     <div class="card span-6">
       <h2>Physical Constants</h2>
@@ -1016,15 +1209,34 @@ tr:hover td{background:#fffbeb}
   </div>
 </section>
 
-</div>
-<div class="footer">AZNUR EM · single HTML · local calculations · no external assets · engineering approximations clearly labeled</div>
+    </div><!-- /#main -->
+  </div><!-- /.layout -->
 </main>
-</div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="footer">AZNUR EM · single HTML · local calculations · no external assets · engineering approximations clearly labeled</div>
 
 <script>
 'use strict';
+/* ============================================================
+   Theme
+   ============================================================ */
+const THEME_KEY = 'aznur-index-theme';
+function applyTheme(value){
+  if(value === 'system') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', value);
+  try{ localStorage.setItem(THEME_KEY, value); }catch{}
+  const sel = document.getElementById('theme1');
+  if(sel) sel.value = value;
+}
+function initTheme(){
+  let stored = 'system';
+  try{ stored = localStorage.getItem(THEME_KEY) || 'system'; }catch{}
+  applyTheme(stored);
+  const sel = document.getElementById('theme1');
+  if(sel) sel.addEventListener('change', () => applyTheme(sel.value));
+}
+initTheme();
+
 /* ============================================================
    Helpers
    ============================================================ */
@@ -1057,7 +1269,7 @@ function render(out, rows){
 }
 
 /* ============================================================
-   Calculators - every card recalculates live on input
+   Calculators
    ============================================================ */
 const CALCS = {};
 
@@ -1074,7 +1286,6 @@ CALCS.qohm = {i:['qoV','qoI'], out:'qohmOut', fn(n){
           st('Power', fmt(Math.abs(n[0]*n[1])),'W')];
 }};
 
-/* ---------- electrostatics ---------- */
 CALCS.co = {i:['coq1','coq2','cor','coepsr'], out:'coOut', fn(n){
   if(!ok(...n) || n[2]<=0 || n[3]<=0) return [];
   const q1 = n[0]*1e-6, q2 = n[1]*1e-6, r = n[2], er = n[3];
@@ -1170,7 +1381,6 @@ CALCS.ed = {i:['edEps','edE','edA','edD'], out:'edOut', fn(n){
           st('Displacement D', fmt(EPS0*n[0]*n[1]),'C/m²')];
 }};
 
-/* ---------- circuits ---------- */
 CALCS.dc = {i:['dcV','dcI','dcR'], s:['dcKnown'], out:'dcOut', fn(n,r,s){
   const [V,I,R] = n, mode = s[0];
   let v,i,rw, which;
@@ -1276,7 +1486,6 @@ CALCS.ec = {i:['ecV','ecI','ecPF','ecH','ecTar'], s:['ecPhase'], out:'ecOut', fn
           st('Cost', fmt(kWh*tar),'Tk','hot')];
 }};
 
-/* ---------- magnetism ---------- */
 CALCS.mf = {i:['mfq','mfv','mfB','mfTheta'], out:'mfOut', fn(n){
   if(!ok(...n) || n.slice(1).some(x=>x<0)) return [];
   const F = Math.abs(n[0]*1e-6)*n[1]*n[2]*Math.sin(n[3]*D2R);
@@ -1335,7 +1544,6 @@ CALCS.tor = {i:['torN','torI','torA','torB','torTheta'], out:'torOut', fn(n){
           st('Max torque (θ=90°)', fmt(m*n[3]),'N·m')];
 }};
 
-/* ---------- AC + induction ---------- */
 CALCS.in = {i:['inN','inA','inB1','inB2','inDt','inTheta'], out:'inOut', fn(n){
   if(!ok(...n) || n[4]<=0 || n.slice(1,4).some(x=>x<0)) return [];
   const [N,A,B1,B2,dt,th] = n;
@@ -1410,7 +1618,6 @@ CALCS.skin = {i:['skinF','skinRho','skinMur'], out:'skinOut', fn(n){
           st('At 63%', fmt(d*1e6),'µm')];
 }};
 
-/* ---------- EM waves ---------- */
 CALCS.ew = {i:['ewF','ewEr','ewMr','ewE'], out:'ewOut', fn(n){
   if(!ok(...n) || n[0]<=0 || n[1]<=0 || n[2]<=0) return [];
   const [f,er,mur,E] = n;
@@ -1461,7 +1668,6 @@ CALCS.fspl = {i:['fsF','fsD','fsPt'], out:'fsOut', fn(n){
           st('Wavelength λ', fmt(0.299792458/fG),'m')];
 }};
 
-/* ---------- materials ---------- */
 CALCS.reswire = {i:['resRho','resL','resA','resI'], s:['resMat'], out:'rwOut', fn(n,r,s){
   if(!ok(...n) || n[0]<=0 || n[1]<=0 || n[2]<=0) return [];
   const [rho,L,A,I] = n;
@@ -1499,7 +1705,9 @@ CALCS.bg = {i:['bgEg'], out:'bgOut', fn(n){
           st('Photon at cutoff', fmt(n[0]),'eV')];
 }};
 
-/* ---------- calc engine ---------- */
+/* ============================================================
+   Calc engine
+   ============================================================ */
 function runCalc(key){
   const d = CALCS[key];
   const raw = d.i.map(id => byId(id).value.trim());
@@ -1521,11 +1729,10 @@ Object.keys(CALCS).forEach(key => {
     el.addEventListener('input', run);
     el.addEventListener('change', run);
   });
-  const btn = card.querySelector('.btn.primary');
+  const btn = card.querySelector('.btn.accent');
   if(btn) btn.addEventListener('click', run);
   RUNNERS.push(run);
 });
-/* material preset writes resistivity into the input */
 byId('resMat').addEventListener('change', () => {
   byId('resRho').value = byId('resMat').value;
   runCalc('reswire');
@@ -1588,15 +1795,45 @@ byId('clearSearch').addEventListener('click', () => { searchEl.value=''; renderT
 searchEl.addEventListener('keydown', e => {
   if(e.key==='Enter'){ const b = toolList.querySelector('.list-btn'); if(b) b.click(); }
 });
-document.querySelectorAll('[data-open]').forEach(b =>
-  b.addEventListener('click', () => openTool(b.dataset.open)));
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-open]');
+  if(b) openTool(b.dataset.open);
+});
 
 function go(pane){
-  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id==='pane-'+pane));
-  document.querySelectorAll('[data-pane]').forEach(b => b.classList.toggle('on', b.dataset.pane===pane));
+  // Switch to calculator mode
+  document.body.classList.remove('ref-mode');
+  const mCalc = byId('mCalc');
+  const mRef = byId('mRef');
+  if(mCalc) mCalc.setAttribute('aria-selected', 'true');
+  if(mRef) mRef.setAttribute('aria-selected', 'false');
+
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id==='pane-'+pane));
+  document.querySelectorAll('.cat').forEach(b => b.classList.toggle('active', b.dataset.pane===pane));
   window.scrollTo({top:0});
   if(pane==='visual') Lab.start(); else Lab.stop();
 }
+
+function switchMode(mode){
+  const isRef = mode==='ref';
+  document.body.classList.toggle('ref-mode', isRef);
+  const mCalc = byId('mCalc');
+  const mRef = byId('mRef');
+  if(mCalc) mCalc.setAttribute('aria-selected', String(!isRef));
+  if(mRef) mRef.setAttribute('aria-selected', String(isRef));
+
+  if(isRef){
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id==='pane-reference'));
+    Lab.stop();
+  } else {
+    const activeCat = document.querySelector('.cat.active');
+    const panelId = activeCat ? activeCat.dataset.pane : 'home';
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('active', p.id==='pane-'+panelId));
+    if(panelId==='visual') Lab.start();
+  }
+  window.scrollTo({top:0});
+}
+
 function openTool(o){
   const t = TOOLS.find(x => x.o===o);
   if(!t) return;
@@ -1605,16 +1842,27 @@ function openTool(o){
     const card = byId('tool-'+o);
     if(card){
       card.scrollIntoView({behavior:'smooth', block:'center'});
-      card.classList.remove('flash'); void card.offsetWidth;
-      card.classList.add('flash');
-      setTimeout(() => card.classList.remove('flash'), 1300);
     }
   }, 120);
 }
-document.querySelectorAll('[data-pane]').forEach(b => b.addEventListener('click', () => go(b.dataset.pane)));
+document.querySelectorAll('[data-pane].cat').forEach(b => b.addEventListener('click', () => go(b.dataset.pane)));
+byId('mCalc').addEventListener('click', () => switchMode('calc'));
+byId('mRef').addEventListener('click', () => switchMode('ref'));
+
+/* category search */
+const catSearch = byId('catSearch');
+if(catSearch){
+  catSearch.addEventListener('input', () => {
+    const q = catSearch.value.toLowerCase().trim();
+    document.querySelectorAll('.cat').forEach(cat => {
+      const text = cat.textContent.toLowerCase();
+      cat.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+  });
+}
 
 /* ============================================================
-   VISUAL LAB - one state object, one render loop, live controls
+   VISUAL LAB
    ============================================================ */
 const Lab = (() => {
   const cv = byId('labCanvas'), ctx = cv.getContext('2d');
@@ -1624,12 +1872,11 @@ const Lab = (() => {
         speedEl = byId('labSpeed'), speedVal = byId('labSpeedVal');
 
   const MONO = '"IBM Plex Mono",Consolas,monospace';
-  const COL = { bg:'#191512', grid:'rgba(231,229,228,.07)', axis:'rgba(231,229,228,.16)',
-                trace:'#fbbf24', soft:'#a8a29e', cream:'#f5f5f4' };
+  const COL = { bg:'#141110', grid:'rgba(231,229,228,.07)', axis:'rgba(231,229,228,.16)',
+                trace:'#f59e0b', soft:'#a8a29e', cream:'#f5f5f4' };
 
   const S = { mode:'efield', t:0, playing:true, speed:1, p:{}, raf:0, active:false };
 
-  /* ---------- drawing helpers (pixel coordinates) ---------- */
   function ln(x1,y1,x2,y2,color,lw,dash){
     ctx.save();
     ctx.strokeStyle = color; ctx.lineWidth = lw||1.6;
@@ -1661,10 +1908,7 @@ const Lab = (() => {
          : f>=1e3 ? (f/1e3).toFixed(1)+' kHz' : f.toFixed(0)+' Hz';
   }
 
-  /* ---------- experiments ---------- */
   const MODES = {
-
-    /* 1 ─ two point charges: field lines ------------------------ */
     efield:{
       label:'Charge field lines',
       hint:'E-field lines of two point charges, integrated from the real vector law (E ∝ 1/r²). Amber = positive, white = negative; arrowheads show the direction of E. Readouts give the field and potential at the midpoint.',
@@ -1719,9 +1963,9 @@ const Lab = (() => {
         });
         ch.forEach(c => {
           if(Math.abs(c.q)<.05) return;
-          const col = c.q>0 ? '#fbbf24' : '#f5f5f4';
+          const col = c.q>0 ? '#f59e0b' : '#f5f5f4';
           dot(c.x, c.y, 12, col);
-          ctx.strokeStyle = '#191512'; ctx.lineWidth = 2;
+          ctx.strokeStyle = '#141110'; ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(c.x-6, c.y); ctx.lineTo(c.x+6, c.y);
           if(c.q>0){ ctx.moveTo(c.x, c.y-6); ctx.lineTo(c.x, c.y+6); }
@@ -1739,7 +1983,6 @@ const Lab = (() => {
       }
     },
 
-    /* 2 ─ cyclotron motion -------------------------------------- */
     cyclo:{
       label:'Cyclotron motion',
       hint:'A charged particle in a uniform field B (into the page). The pitch angle tilts the circular orbit into a helix; the particle charge flips the sense of rotation. Model units, real right-hand-rule geometry.',
@@ -1752,7 +1995,6 @@ const Lab = (() => {
       ],
       draw(w,h,p,t){
         bgFill(w,h);
-        // uniform B into page
         ctx.strokeStyle='rgba(168,161,158,.35)'; ctx.lineWidth=1;
         for(let gx=40; gx<w; gx+=64) for(let gy=40; gy<h; gy+=64){
           ln(gx-5,gy-5,gx+5,gy+5,'rgba(168,161,158,.35)',1);
@@ -1765,13 +2007,11 @@ const Lab = (() => {
         const dir = p.sg==='neg' ? -1 : 1;
         let tt = S.t;
         if(drift > 1) tt = S.t % Math.max(1,(w*0.78)/drift);
-        // guiding circle (dashed)
         const cxg = w*0.16 + drift*tt, cyg = h/2;
         ctx.setLineDash([4,6]);
         ctx.strokeStyle = 'rgba(245,245,244,.2)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.ellipse(cxg, cyg, rpx*0.92, rpx, 0, 0, 7); ctx.stroke();
         ctx.setLineDash([]);
-        // helical path (last 3T)
         ctx.strokeStyle = 'rgba(245,245,244,.5)'; ctx.lineWidth = 1.5;
         ctx.beginPath();
         for(let k=0;k<=240;k++){
@@ -1796,7 +2036,6 @@ const Lab = (() => {
       }
     },
 
-    /* 3 ─ RC transient ------------------------------------------ */
     rc:{
       label:'RC transient',
       hint:'Capacitor voltage relaxing to its final value with time constant τ (amber), plus the current shape (dashed). The 63.2% marker shows the meaning of τ. The cursor tracks simulation time and loops.',
@@ -1815,7 +2054,6 @@ const Lab = (() => {
         [0,2,4,6,8,10,12].forEach(v => { ln(pad-4, Y(v), pad, Y(v), COL.soft, 1);
           txt(String(v), pad-24, Y(v)+3, COL.soft, 9); });
         txt('Vc (V)', pad-30, top-8, COL.soft, 9);
-        // current shape (dashed, 0..1 scaled to 12)
         ctx.setLineDash([5,5]);
         ctx.strokeStyle = 'rgba(245,245,244,.35)'; ctx.lineWidth = 1.3;
         ctx.beginPath();
@@ -1826,7 +2064,6 @@ const Lab = (() => {
         }
         ctx.stroke(); ctx.setLineDash([]);
         txt('i(t) shape', X(0.2*p.tau), Y(11.6), 'rgba(245,245,244,.5)', 9);
-        // Vc curve
         ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
         ctx.beginPath();
         for(let tt=0; tt<=5*p.tau; tt+=5*p.tau/220){
@@ -1835,12 +2072,10 @@ const Lab = (() => {
           tt===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
         }
         ctx.stroke();
-        // τ marker
         const v63 = p.V0 + 0.632*(p.Vf-p.V0);
         ln(X(p.tau), top, X(p.tau), bot, COL.soft, 1, [3,5]);
         ln(pad, Y(v63), X(p.tau), Y(v63), COL.soft, 1, [3,5]);
         txt('τ · 63.2%', X(p.tau)+5, Y(v63)-6, COL.cream);
-        // cursor
         const tc = (S.t % (6*p.tau));
         if(tc <= 5*p.tau){
           const v = p.Vf + (p.V0-p.Vf)*Math.exp(-tc/p.tau);
@@ -1859,7 +2094,6 @@ const Lab = (() => {
       }
     },
 
-    /* 4 ─ RLC resonance curve ----------------------------------- */
     rlc:{
       label:'RLC resonance',
       hint:'Normalised current amplitude and phase of a series RLC as frequency sweeps (cursor follows simulation time). Real L, R, C values - the plot window auto-fits the resonance bandwidth.',
@@ -1880,12 +2114,10 @@ const Lab = (() => {
         const YP = ph => mid + 46 - ph/90*(h*0.36);
         ln(pad, bot, w-10, bot, COL.axis, 1);
         ln(pad, YP(0), w-10, YP(0), COL.grid, 1);
-        // shaded ±BW/2 band around f0
-        ctx.fillStyle = 'rgba(251,191,36,.06)';
+        ctx.fillStyle = 'rgba(245,158,11,.06)';
         ctx.fillRect(X(f0-BW/2), top, X(f0+BW/2)-X(f0-BW/2), bot-top);
         ln(X(f0), top, X(f0), bot, COL.soft, 1, [3,5]);
         txt('f₀', X(f0)-6, top+10, COL.cream);
-        // phase curve
         ctx.strokeStyle = 'rgba(245,245,244,.4)'; ctx.lineWidth = 1.3;
         ctx.beginPath();
         for(let k=0;k<=220;k++){
@@ -1896,7 +2128,6 @@ const Lab = (() => {
         }
         ctx.stroke();
         txt('φ (deg)', pad-34, mid+52, COL.soft, 9);
-        // current amplitude
         ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
         ctx.beginPath();
         for(let k=0;k<=220;k++){
@@ -1907,13 +2138,11 @@ const Lab = (() => {
         }
         ctx.stroke();
         txt('I/I₀', pad-32, top+6, COL.trace, 9);
-        // frequency ticks
         for(let k=0;k<=4;k++){
           const f = fmin + (fmax-fmin)*k/4;
           ln(X(f), bot, X(f), bot+4, COL.soft, 1);
           txt((f>=1000?(f/1000).toFixed(1)+'k':f.toFixed(0)), X(f)-12, bot+16, COL.soft, 9);
         }
-        // sweeping cursor
         const fc = fmin + ((S.t % 8)/8)*(fmax-fmin);
         const wv = 2*Math.PI*fc, In = R/Math.hypot(R, wv*L-1/(wv*C));
         ln(X(fc), top, X(fc), bot, 'rgba(245,245,244,.4)', 1, [4,5]);
@@ -1928,7 +2157,6 @@ const Lab = (() => {
       }
     },
 
-    /* 5 ─ two parallel wires ------------------------------------ */
     wires:{
       label:'Parallel wires',
       hint:'End view of two current-carrying wires (⊙ out of page, ⊗ into page). Field circles fade as 1/r and their dashes rotate with the right-hand-rule sense. Readouts: force between wires and the net field at the midpoint.',
@@ -1943,24 +2171,22 @@ const Lab = (() => {
         const wire = (x,I) => {
           if(Math.abs(I)<.05) { dot(x,cy,9,COL.soft); txt('I = 0', x-14, cy-18, COL.soft); return; }
           const out = I>0;
-          // field circles, alpha ~ 1/r
           for(let k=1;k<=6;k++){
             const r = 22+k*24;
-            ctx.strokeStyle = 'rgba(251,191,36,'+(0.42/k).toFixed(3)+')';
+            ctx.strokeStyle = 'rgba(245,158,11,'+(0.42/k).toFixed(3)+')';
             ctx.lineWidth = 1.4;
             ctx.setLineDash([7,9]);
             ctx.lineDashOffset = -S.t*14*Math.sign(I);
             ctx.beginPath(); ctx.arc(x, cy, r, 0, 7); ctx.stroke();
             ctx.setLineDash([]); ctx.lineDashOffset = 0;
-            // tangential arrowhead (right-hand rule: out of page → CCW)
             const ang = -0.6;
             const ax = x + r*Math.cos(ang), ay = cy + r*Math.sin(ang);
             const s = Math.sign(I);
-            head(ax, ay, -Math.sin(ang)*s, Math.cos(ang)*s, 'rgba(251,191,36,.7)');
+            head(ax, ay, -Math.sin(ang)*s, Math.cos(ang)*s, 'rgba(245,158,11,.7)');
           }
           dot(x, cy, 9, out ? COL.trace : COL.cream);
-          ctx.strokeStyle = '#191512'; ctx.lineWidth = 1.6;
-          if(out){ dot(x, cy, 2.5, '#191512'); }
+          ctx.strokeStyle = '#141110'; ctx.lineWidth = 1.6;
+          if(out){ dot(x, cy, 2.5, '#141110'); }
           else {
             ctx.beginPath();
             ctx.moveTo(x-4,cy-4); ctx.lineTo(x+4,cy+4);
@@ -1970,7 +2196,6 @@ const Lab = (() => {
           txt('I '+(I>0?'+':'')+I.toFixed(1)+' A', x-20, cy-20, out?COL.trace:COL.cream);
         };
         wire(x1, p.I1); wire(x2, p.I2);
-        // force arrows
         const attract = p.I1*p.I2 > 0;
         const col = attract ? '#34d399' : '#f87171';
         const a1x = x1+16, a2x = x2-16;
@@ -1992,7 +2217,6 @@ const Lab = (() => {
       }
     },
 
-    /* 6 ─ AC waveforms + power ---------------------------------- */
     acwave:{
       label:'AC v, i + power',
       hint:'Voltage (amber) and current (cream) sinusoids with a phase angle φ between them; the faint trace below is instantaneous power with its average P̄ = V·I·cosφ/2. The phase slider directly sets the power factor.',
@@ -2005,10 +2229,9 @@ const Lab = (() => {
         bgFill(w,h);
         const cy = h*0.38;
         const Av = p.V*7, Ai = p.I*13;
-        const k = 2*Math.PI/(w*0.5); // 2 cycles across
+        const k = 2*Math.PI/(w*0.5);
         const om = 2*Math.PI*0.8;
         ln(10, cy, w-10, cy, COL.axis, 1);
-        // instantaneous power band
         const pTop = h-72, pBot = h-24, pMid = (pTop+pBot)/2;
         ln(10, pMid, w-10, pMid, COL.axis, 1);
         ctx.strokeStyle = 'rgba(168,161,158,.4)'; ctx.lineWidth = 1.2;
@@ -2023,7 +2246,6 @@ const Lab = (() => {
         const pav = Math.cos(p.ph*D2R)*(pBot-pTop)/2;
         ln(12, pMid-pav, w-12, pMid-pav, COL.trace, 1.4, [5,4]);
         txt('p(t) and average P̄', 14, pTop-6, COL.soft, 9);
-        // v and i
         ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
         ctx.beginPath();
         for(let x=12;x<=w-12;x+=3){
@@ -2052,7 +2274,6 @@ const Lab = (() => {
       }
     },
 
-    /* 7 ─ EM plane wave ----------------------------------------- */
     emwave:{
       label:'EM plane wave',
       hint:'A travelling plane wave: E oscillates vertically (amber), B is orthogonal - shown as ⊙ (out of page) and ⊗ (into page) symbols whose size follows |B|. Both move together at c; E/B = c always.',
@@ -2065,7 +2286,6 @@ const Lab = (() => {
         const cy = h/2;
         const ph = x => 2*Math.PI*(x/w*p.N) - 2*Math.PI*S.t*0.7;
         ln(12, cy, w-12, cy, COL.axis, 1);
-        // B symbols along axis
         const step = (w-30)/Math.max(18, Math.round(p.N*9));
         for(let x=20; x<w-16; x+=step){
           const Bv = Math.sin(ph(x));
@@ -2081,7 +2301,6 @@ const Lab = (() => {
             ln(x-k, cy+k, x+k, cy-k, 'rgba(245,245,244,'+al+')', 1.4);
           }
         }
-        // E curve
         ctx.strokeStyle = COL.trace; ctx.lineWidth = 2.2;
         ctx.beginPath();
         for(let x=14; x<=w-14; x+=3){
@@ -2089,12 +2308,10 @@ const Lab = (() => {
           x===14 ? ctx.moveTo(x,py) : ctx.lineTo(x,py);
         }
         ctx.stroke();
-        // E arrows
         for(let x=20; x<w-16; x+=step){
           const Ev = Math.sin(ph(x))*p.A*(h*0.3);
           if(Math.abs(Ev)>5){ ln(x, cy, x, cy-Ev, COL.trace, 1.4); head(x, cy-Ev, 0, -Math.sign(Ev), COL.trace); }
         }
-        // propagation + wavelength bracket
         const lamPx = w/p.N;
         ln(w/2-lamPx/2, 22, w/2+lamPx/2, 22, COL.soft, 1);
         [w/2-lamPx/2, w/2+lamPx/2].forEach(x => ln(x, 18, x, 26, COL.soft, 1));
@@ -2111,7 +2328,6 @@ const Lab = (() => {
       }
     },
 
-    /* 8 ─ skin depth -------------------------------------------- */
     skin:{
       label:'Skin depth',
       hint:'Current density in a 4 mm conductor slab: J decays as e^(−x/δ) from both surfaces (amber shading, model curve overlay, δ markers). The drifting dots fade as they enter the interior - current really does flow only in the skin.',
@@ -2127,21 +2343,19 @@ const Lab = (() => {
         bgFill(w,h);
         const f = Math.pow(10, p.lf), rho = parseFloat(p.mat);
         const delta = Math.sqrt(2*rho/(2*Math.PI*f*MU0*p.mur));
-        const W = 4e-3;                       // slab width 4 mm
+        const W = 4e-3;
         const Wpx = Math.min(320, w*0.44), x0 = w/2-Wpx/2;
         const top = 40, bot = h-46;
         const X = xm => x0 + xm/W*Wpx;
         const Jsum = xm => Math.exp(-xm/delta) + Math.exp(-(W-xm)/delta);
         const Jmax = Jsum(0) > 1e-9 ? Math.max(Jsum(0), Jsum(W/2)*1.02) : 1;
-        // slab heat shading per column
         for(let px=0; px<Wpx; px++){
           const J = Jsum(px/Wpx*W)/Jmax;
-          ctx.fillStyle = 'rgba(251,191,36,'+(0.04+0.5*J).toFixed(3)+')';
+          ctx.fillStyle = 'rgba(245,158,11,'+(0.04+0.5*J).toFixed(3)+')';
           ctx.fillRect(x0+px, top, 1.2, bot-top);
         }
         ctx.strokeStyle = COL.soft; ctx.lineWidth = 1.5;
         ctx.strokeRect(x0, top, Wpx, bot-top);
-        // J curve overlay
         ctx.strokeStyle = COL.cream; ctx.lineWidth = 2;
         ctx.beginPath();
         for(let px=0; px<=Wpx; px+=2){
@@ -2151,7 +2365,6 @@ const Lab = (() => {
         }
         ctx.stroke();
         txt('J(x)', x0+Wpx/2-12, top+14, COL.cream);
-        // δ markers
         if(delta < W){
           [delta, W-delta].forEach(xm => ln(X(xm), top-6, X(xm), bot, COL.soft, 1, [3,5]));
           txt('δ', X(delta)-4, top-10, COL.cream);
@@ -2159,7 +2372,6 @@ const Lab = (() => {
           txt('δ > slab - fully penetrated', x0+10, top-10, COL.soft);
         }
         txt('conductor slab, w = 4 mm', x0+Wpx/2-64, bot+16, COL.soft);
-        // drifting charge dots, faded by local J
         for(let k=0;k<26;k++){
           const rowy = top + 14 + (k%5)*((bot-top-28)/4);
           const speed = 90;
@@ -2183,7 +2395,6 @@ const Lab = (() => {
     }
   };
 
-  /* ---------- control system ---------- */
   function buildControls(){
     const m = MODES[S.mode];
     S.p = {};
@@ -2234,7 +2445,6 @@ const Lab = (() => {
     playBtn.title = v ? 'Pause (Space)' : 'Play (Space)';
   }
 
-  /* ---------- render loop ---------- */
   function paint(){
     const w = cv.clientWidth, h = cv.clientHeight;
     if(w<10 || h<10) return;
@@ -2268,7 +2478,6 @@ const Lab = (() => {
     S.speed = 1; speedEl.value = 1; speedVal.textContent = '1.00×';
   }
 
-  /* ---------- wiring ---------- */
   Object.entries(MODES).forEach(([k,m]) => {
     const b = document.createElement('button');
     b.className = 'lab-mode'; b.dataset.mode = k; b.textContent = m.label;
@@ -2356,11 +2565,19 @@ const Lab = (() => {
    Reset, print, toast
    ============================================================ */
 let toastTimer;
-function toast(msg){
-  const t = byId('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+function toast(msg, type='ok'){
+  const wrap = byId('toasts');
+  if(!wrap) return;
+  const t = document.createElement('div');
+  t.className = 'toast';
+  const mark = document.createElement('span');
+  mark.className = 'toast-mark';
+  mark.textContent = type==='err'?'[x]':type==='warn'?'[!]':'[*]';
+  const body = document.createElement('span');
+  body.textContent = msg;
+  t.append(mark, body);
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
 }
 
 byId('printBtn').addEventListener('click', () => window.print());
@@ -2375,7 +2592,6 @@ byId('resetBtn').addEventListener('click', () => {
   toast('Defaults restored');
 });
 
-/* initial fill of every calculator output */
 RUNNERS.forEach(fn => fn());
 </script>
 </body>
